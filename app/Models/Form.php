@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Form extends Model
 {
     //
+    
     protected $fillable = ['name','slug'];
     protected $hidden = ['active','created_at','updated_at'];
     public function scheme()

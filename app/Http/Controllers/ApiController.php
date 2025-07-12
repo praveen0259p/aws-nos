@@ -66,7 +66,6 @@ class ApiController extends Controller
             'scheme_project_type'=>'required|in:1,2,3',
         ]);
         try {
-           // $scheme = Scheme::with(['forms.fields.option','forms.fields.formSubmission'])->where('active',1)->findOrFail($validated['scheme_id']);
             $scheme = Scheme::with([
                 'forms.fields.option',
                 'forms.fields.formSubmission' => function ($q) use ($request) {
@@ -83,8 +82,7 @@ class ApiController extends Controller
                 return response()->json([
                     'message' => 'Form not found under the specified scheme.'
                 ], 404);
-            }
-            //$form = $form->fields->where('steps', $validated['steps'])->where('active',1)->sortBy('order')->values(); 
+            } 
             $projectType = (string)$request->scheme_project_type;
             $formFields = $form->fields
             ->where('steps', $validated['steps'])
@@ -141,6 +139,11 @@ class ApiController extends Controller
             foreach ($form as $field) {
                 $validationRules[$field->id] = implode('|',$field->validation_rule);
                 $customAttributes [$field->id] = $field->label ?? $field->id;
+                if ($field->type === 'radio_with_comment') {
+                    $commentKey = "{$field->id}_comment";
+                    $validationRules[$commentKey] = "required_if:{$field->id},no|string|max:255";
+                    $customAttributes[$commentKey] = "{$field->label} Comment";
+                }
             }
             $input = [];
             

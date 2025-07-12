@@ -84,7 +84,7 @@ class DataSeeder extends Seeder
             //     'slug' => $data['form']['slug'],
             //     'active' => 1,
             // ]);
-
+            //'image'=>'required_if:id,null|file|mimes:jpeg,jpg,png|max:2048',
             //foreach ($data['form']['fields'] as $fieldData) {
                 $optionId = null;
                 if (!empty($fieldData['option'])) {

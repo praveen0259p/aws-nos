@@ -23,8 +23,8 @@ class DataSeeder extends Seeder
                 'slug' => 'inspection',
                 'fields' => [
                     [
-                        'header'=>'COMMENTS/RECOMMENDATIONS OF INSPECTING TEAM',
-                        'label' => 'Comments of the inspection Team on the overall functioning of the School/ Hostel',
+                        'header'=>null,
+                        'label' => 'Enter Comments',
                         'type' => 'textarea',
                         'name' => 'inspection_team_comment',
                         'placeholder' => 'Comments of the inspection Team on the overall functioning of the School/ Hostel',
@@ -32,42 +32,6 @@ class DataSeeder extends Seeder
                         'front_validation_rule'=>['required','string','max:255'],
                         'steps' => 4,
                         'order' => 37,
-                        'option_id'=>null
-                    ],
-                    [
-                        'header'=>null,
-                        'label' => 'Best practices noticed in the institution',
-                        'type' => 'textarea',
-                        'name' => 'best_practice_instituion',
-                        'placeholder' => 'Best practices noticed in the institution :',
-                        'validation_rule' => ['required','string','max:255'],
-                        'front_validation_rule'=>['required','string','max:255'],
-                        'steps' => 4,
-                        'order' => 38,
-                        'option_id'=>null
-                    ],
-                    [
-                        'header'=>null,
-                        'label' => 'Points of improvement',
-                        'type' => 'textarea',
-                        'name' => 'improvement_area',
-                        'placeholder' => 'Points of improvement',
-                        'validation_rule' => ['required','string','max:255'],
-                        'front_validation_rule'=>['required','string','max:255'],
-                        'steps' => 4,
-                        'order' => 39,
-                        'option_id'=>null
-                    ],
-                    [
-                        'header'=>null,
-                        'label' => 'Summary of Final Inspection',
-                        'type' => 'textarea',
-                        'name' => 'summary_final_inspection',
-                        'placeholder' => 'Summary of Final Inspection',
-                        'validation_rule' => ['required','string','max:255'],
-                        'front_validation_rule'=>['required','string','max:255'],
-                        'steps' => 4,
-                        'order' => 40,
                         'option_id'=>null
                     ],
                       
