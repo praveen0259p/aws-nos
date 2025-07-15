@@ -124,6 +124,7 @@ class ApiController extends Controller
             'form_id' => 'required|exists:forms,id',
             'steps' => 'required|integer|min:1|in:'.implode(',',$stepsArray->toArray()),
             'project_id'=>'required|exists:pmu_ir_proposal_lists,project_id',
+            'scheme_project_type'=>'required|in:1,2,3',
         ]); 
         try {
             $scheme = Scheme::with(['forms.fields.option'])->where('active',1)->findOrFail($validated['scheme_id']);
@@ -133,7 +134,16 @@ class ApiController extends Controller
                     'message' => 'Form not found under the specified scheme.'
                 ], 404);
             }
-            $form = $form->fields->where('steps', $validated['steps'])->where('active',1)->sortBy('order')->values();
+            $projectType = (string) $validated['scheme_project_type'];
+            $form = $form->fields
+            ->where('steps', $validated['steps'])
+            ->where('active', 1)
+            ->filter(function ($field) use ($projectType) {
+                $types = array_filter(array_map('trim', explode(',', $field->scheme_project_type ?? '')));
+                return in_array($projectType, $types, true);
+            })
+            ->sortBy('order')
+            ->values();
             $validationRules=[];
             $customAttributes  = [];
             foreach ($form as $field) {
@@ -152,15 +162,15 @@ class ApiController extends Controller
                     $input[$item['field_id']] = $item['value'];
                 }
             }
-            $messages = config('validationmessages');
+            $messages = config('validationmessages') ?? [];
             $request->merge($input);
             $request->validate($validationRules,$messages,$customAttributes);
             //return response()->json($request->all(),200);
             try {
                 $results = [];
-                $fieldsToEncode=[3,7];
+                $fieldsToEncode=[3,7,20,25,26,28,29,30,44,45,115,51,55,56,57,116,60,61,62,63,65,66,67,68,70];
                 foreach ($request->fields as $field) {
-                    $field_response = in_array($field['field_id'], $fieldsToEncode, true)? json_encode($field['value']): $field['value'];
+                    $field_response = is_array($field['value']) ? json_encode($field['value']) : $field['value'];
                     $record= FormSubmission::updateOrCreate(
                         [
                             'project_id' => $request->project_id,
@@ -173,7 +183,7 @@ class ApiController extends Controller
                         [
                             'field_response' => $field_response,
                         ]
-                    );
+                    ); 
                     $results[] = [
                         'field_id' => $field['field_id'],
                         'status' => $record->wasRecentlyCreated ? 'inserted' : 'updated',
