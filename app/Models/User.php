@@ -14,6 +14,7 @@ class User extends Authenticatable implements JWTSubject
      */
 
      protected $fillable = [
+        'scheme_id',
         'bo_id',
         'user_name',
         'is_pmu_official',
