@@ -10,6 +10,7 @@ use App\Models\Contact;
 use App\Models\FormFieldOption;
 use App\Models\FAQ;
 use App\Models\Gallery;
+use App\Models\FormSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -506,6 +507,28 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Failed to upload images.',
                 'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+    public function submissionData(Request $request){
+        $request->validate([
+            'project_id'=> 'required|exists:pmu_ir_proposal_lists,project_id',
+        ]);
+        try {
+            $submissions = FormSubmission::select('form_fields.label as field_label', 'form_submissions.field_response')
+            ->join('form_fields', 'form_submissions.field_id', '=', 'form_fields.id')
+            ->where('form_submissions.project_id', $request->project_id) 
+            ->get();
+
+            return response()->json([
+                'data'=> $submissions,
+                'message' => 'Data Fetched Successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to get form submissions data: ' . $e->getMessage());
+            return response()->json([
+                'data'=> null,
+                'message' => 'Failed to retrieve form submissions Data.'
             ], 500);
         }
     }

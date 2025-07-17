@@ -27,10 +27,7 @@ class User extends Authenticatable implements JWTSubject
         'role_type',
         'district_id',
     ];
-
-        protected $casts=[
-            'district_id' => 'array'
-        ];
+    protected $casts=['district_id' => 'array'];
     public function getJWTIdentifier()
     {
         return $this->getKey();

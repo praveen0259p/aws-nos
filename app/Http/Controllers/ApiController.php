@@ -93,9 +93,9 @@ class ApiController extends Controller
             })
             //->sortBy(fn($field) => (int) $field->order)
             ->values()
-            ->map(function ($field) {
+             ->map(function ($field) {
                 $submission = optional($field->formSubmissions)->first();
-                $field->response = optional($submission)->field_response;
+                //$field->response = optional($submission)->field_response;
                 return $field;
             });
             $proposalList = PmuIrProposalList::where('project_id', $request->project_id)->get();
