@@ -38,16 +38,7 @@ class AuthController extends Controller
             'mobile_no.regex' => 'The mobile number must start with 6, 7, 8, or 9 and must be 10 digits long.',
         ]);
         try {
-            $mobile = $request->mobile_no;
-            $user = User::where('mobile_no',$mobile)->first();
-            if (!$user) {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'User not found'
-                ], 404);
-            }
-            self::sendOtp($mobile);
-
+            self::sendOtp($request->mobile_no);
             return response()->json([
                 'status' => true,
                 'message' => 'OTP sent to mobile',
