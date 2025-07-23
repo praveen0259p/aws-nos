@@ -16,6 +16,6 @@ class Form extends Model
     }
     public function fields()
     {
-        return $this->hasMany(FormField::class)->orderBy('order');
+        return $this->hasMany(FormField::class)->where('parent_id', 0)->orderBy('order');
     }
 }

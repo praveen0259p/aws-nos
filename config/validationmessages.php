@@ -8,4 +8,4 @@ $responses = $field->formSubmission->map(fn($submission) => $submission->field_r
                // $field->response = $responses->first() ?? null;
                 unset($field->formSubmission);
                 return $field;
-//SELECT f.label AS field_label,fs.field_response FROM form_submissions fs JOIN form_fields f ON fs.field_id = f.id WHERE fs.steps=3 AND FIND_IN_SET('1',f.scheme_project_type);
+//SELECT f.id,f.label AS field_label,fs.field_response FROM form_submissions fs JOIN form_fields f ON fs.field_id = f.id WHERE fs.steps=3 AND FIND_IN_SET('1',f.scheme_project_type);

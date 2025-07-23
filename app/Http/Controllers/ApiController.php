@@ -67,10 +67,22 @@ class ApiController extends Controller
         ]);
         try {
             $scheme = Scheme::with([
-                'forms.fields.option',
-                'forms.fields.formSubmission' => function ($q) use ($request) {
-                    $q->where('project_id', $request->project_id);
-                }
+                'forms.fields' => function ($query) use ($request) {
+                    $query->with([
+                        'option',
+                        'formSubmission' => function ($q) use ($request) {
+                            $q->where('project_id', $request->project_id);
+                        },
+                        'children' => function ($childQuery) use ($request) {
+                            $childQuery->with([
+                                'option',
+                                'formSubmission' => function ($q) use ($request) {
+                                    $q->where('project_id', $request->project_id);
+                                }
+                            ]);
+                        }
+                    ]);
+                },
             ])->where('active', 1)->findOrFail($validated['scheme_id']);
             if (!$scheme) {
                 return response()->json([

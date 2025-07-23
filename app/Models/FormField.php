@@ -24,6 +24,10 @@ class FormField extends Model
     {
         return $this->hasMany(FormSubmission::class, 'field_id', 'id');
     }
+    public function children()
+    {
+        return $this->hasMany(FormField::class, 'parent_id');
+    }
     // public function propoalList()
     // {
     //     return $this->hasOne(FormSubmission::class, 'field_id', 'id');
