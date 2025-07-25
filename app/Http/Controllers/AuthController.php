@@ -18,10 +18,12 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use DB;
+
+use Illuminate\Support\Facades\DB;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Support\Facades\Log;
+use MongoDB;
 class AuthController extends Controller
 {
     protected array $labels = [
@@ -520,6 +522,17 @@ class AuthController extends Controller
             return response()->json([
                 'data'=> null,
                 'message' => 'Failed to retrieve form submissions Data.'
+            ], 500);
+        }
+    }
+    public function testContacts()
+    {
+        try {
+            $contacts = DB::connection('mongodb')->getMongoDB()->selectCollection('contacts')->find(['id' => '2'])->toArray();
+            return response()->json($contacts);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
             ], 500);
         }
     }

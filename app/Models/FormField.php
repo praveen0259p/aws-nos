@@ -26,7 +26,7 @@ class FormField extends Model
     }
     public function children()
     {
-        return $this->hasMany(FormField::class, 'parent_id');
+        return $this->hasMany(FormField::class, 'parent_id')->with('children');
     }
     // public function propoalList()
     // {

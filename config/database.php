@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => env('DB_CONNECTION', 'mysql'),
 
     /*
     |--------------------------------------------------------------------------
@@ -61,6 +61,12 @@ return [
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => env('MONGODB_DSN', 'mongodb://127.0.0.1:27017'),
+            'database' => env('DB_DATABASE', 'eanudaan'),
+        ],
+
         'scwnew' => [ // scwnew connection
             'driver' => env('DB_SECOND_CONNECTION', 'mysql'),
             'host' => env('DB_SECOND_HOST', '127.0.0.1'),
