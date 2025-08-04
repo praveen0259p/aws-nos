@@ -11,17 +11,9 @@ use App\Models\FormFieldOption;
 use App\Models\FAQ;
 use App\Models\Gallery;
 use App\Models\FormSubmission;
+use App\Models\Menu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Validator;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Facades\JWTAuth;
-
-use Illuminate\Support\Facades\DB;
-use Dompdf\Dompdf;
-use Dompdf\Options;
 use Illuminate\Support\Facades\Log;
 class AuthController extends Controller
 {
@@ -112,21 +104,10 @@ class AuthController extends Controller
     }
     public function dashboard(Request $request)
     {
-        //return response()->json($request->form_id, 200);
-        // switch($request->form_id){
-        //     case 5:
-        //         return $this->inspectionReportDashboard();
-        //         break;
-        //     case 6:
-        //         break;
-
-        //     default:
-        // }
         try {
             $statusLabels = $this->labels;
             $dashboard = array_fill_keys(array_keys($statusLabels), 0);
             $result = JWTAuth::parseToken()->authenticate()->district_id;
- 
             if (!is_array($result) || empty($result)) {
                 return response()->json([
                     'success' => false,
@@ -134,8 +115,15 @@ class AuthController extends Controller
                 ], 422);
             }
             //return response()->json($result, 200);
+            $fin_year = empty($request->fin_year)?now()->format('Y'). '-' .now()->addYear()->format('y'):$request->fin_year; 
             foreach ($result as $data) {
-                $rawCounts = PmuIrProposalList::where('Lgd_State_Code', $data['lgd_state_code'])->where('Lgd_District_Code', $data['lgd_district_code'])
+                $rawCounts = PmuIrProposalList::where([
+                        'Financial_year'=>$fin_year,
+                        'scheme_id'=>$request->scheme_id,
+                        'form_id'=>$request->form_id,
+                        'Lgd_State_Code' => $data['lgd_state_code'],
+                        'Lgd_District_Code' => $data['lgd_district_code']
+                    ])
                     ->selectRaw('status, COUNT(*) as total')
                     ->groupBy('status')
                     ->pluck('total', 'status')
@@ -167,26 +155,32 @@ class AuthController extends Controller
     }
     public function GetProposalListShrest(Request $request)
     {
-        $stepsArray = FormField::select('steps')->where([ 'scheme_id'=>5,'form_id'=>5,'active'=>1])->distinct()->pluck('steps');
+        $stepsArray = FormField::select('steps')->where([ 'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id,'active'=>1])->distinct()->pluck('steps');
         $totalSteps=$stepsArray->toArray();
         $request->validate([
             'status' => 'required|in:' . implode(',', array_keys($this->labels)),
         ]);
+        $fin_year = empty($request->fin_year)?now()->format('Y'). '-' .now()->addYear()->format('y'):$request->fin_year; 
+        //return response()->json($fin_year,200);
         try {
-            $proposals = [];
-            $user = JWTAuth::parseToken()->authenticate();
             $districtCodes = JWTAuth::parseToken()->authenticate()->district_id;
             $allProposals = collect();
             foreach($districtCodes as $data) {
                 $query = PmuIrProposalList::query()
                 ->with([
                     'formSubmissions' => function ($q) {
-                        $q->select('id', 'project_id', 'field_id');
+                        $q->select('id','Ngo_Unique_Id', 'Ack_Number', 'field_id');
                     },
                     'formSubmissions.field:id,steps'
                 ])
-                ->where('status', $request->status)
-                ->where('Lgd_State_Code', $data['lgd_state_code'])->where('Lgd_District_Code', $data['lgd_district_code'])
+                ->where([
+                    'Financial_year'=>$fin_year,
+                    'scheme_id'=>$request->scheme_id,
+                    'form_id'=>$request->form_id,
+                    'status'=>$request->status,
+                    'Lgd_State_Code'=>$data['lgd_state_code'],
+                    'Lgd_District_Code'=>$data['lgd_district_code']
+                ])
                 ->get();
                 $allProposals = $allProposals->merge($query);
             }
@@ -222,12 +216,19 @@ class AuthController extends Controller
 
     private static function sendOtp($mobile)
     {
-        $otp = 123456;
+        $otp = rand(100000, 999999);
         User::where('mobile_no', $mobile)->update([
             'otp' => $otp,
             'otp_expires_at' => now()->addMinutes(5)
         ]);
-        $apiUrl = 'https://pmajay.dosje.gov.in/api/send/sms';
+        $host = request()->getHost();
+
+        if ($host ==='164.100.77.235') {
+            $apiUrl = 'https://10.246.21.206/api/send/sms';
+        } else {
+            $apiUrl = 'https://pmajay.dosje.gov.in/api/send/sms';
+        }
+        
         $postData = [
             'templet' => 'otp',
             'mobile' => $mobile,
@@ -242,6 +243,9 @@ class AuthController extends Controller
         $response = curl_exec($ch);
         if (curl_errno($ch)) {
             $error_msg = curl_error($ch);
+            curl_close($ch);
+            Log::error("SMS API error: $error_msg");
+            return response()->json(['message' => 'Failed to send OTP', 'error' => $error_msg], 500);
         }
         curl_close($ch);
         return response()->json(['message' => 'OTP sent successfully'], 200);
@@ -252,7 +256,7 @@ class AuthController extends Controller
             $user = JWTAuth::parseToken()->authenticate();
             $schemeIdsString = $user->scheme_id;
             $schemeIdsArray = explode(',', $schemeIdsString);
-            $schemes = Scheme::with('forms')->whereIn('id', $schemeIdsArray)->get();
+            $schemes = Scheme::with('forms')->whereIn('id', $schemeIdsArray)->where('active',1)->get();
             return response()->json([
                 'success' => true,
                 'schemes' => $schemes
@@ -268,10 +272,16 @@ class AuthController extends Controller
     public function menus(Request $request)
     {
         try {
-            $menus=config('menu');
-            $schemeMenus = $menus[$request->scheme_id] ?? [];
-            if (!is_array($menus)) {
-                throw new \Exception('Menu configuration is invalid.');
+            $request->validate([
+                'scheme_id' => 'required|exists:schemes,scheme_id',
+                'form_id' => 'required|exists:forms,id',
+            ]); 
+            $schemeMenus =Menu::where(['parent_id'=> 0,'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id])->with('children')->get();
+            if ($schemeMenus->isEmpty()) {
+                return response()->json([
+                    'status' => 404,
+                    'message' => 'No menu found'
+                ], 404);
             }
             return response()->json($schemeMenus, 200);
         } catch (\Throwable $e) {
@@ -285,7 +295,6 @@ class AuthController extends Controller
 
     public function profile()
     {
-
         try {
             return response()->json([
                 'status' => 200,
@@ -299,57 +308,11 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    private function inspectionReportDashboard()
-    {
-        try {
-            $statusLabels = $this->labels;
-            $dashboard = array_fill_keys(array_keys($statusLabels), 0);
-            $result = JWTAuth::parseToken()->authenticate()->district_id;
-
-            if (!is_array($result) || empty($result)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No district IDs found for the user.'
-                ], 422);
-            }
-            //return response()->json($result, 200);
-            foreach ($result as $data) {
-                $rawCounts = PmuIrProposalList::where('Lgd_State_Code', $data['lgd_state_code'])->where('Lgd_District_Code', $data['lgd_district_code'])
-                    ->selectRaw('status, COUNT(*) as total')
-                    ->groupBy('status')
-                    ->pluck('total', 'status')
-                    ->toArray();
-
-                foreach ($statusLabels as $status => $label) {
-                    $dashboard[$status] += $rawCounts[$status] ?? 0;
-                }
-            }
-            $formatted = [];
-            foreach ($dashboard as $status => $count) {
-                $formatted[] = [
-                    'name' => $statusLabels[$status],
-                    'count' => $count,
-                    'status' => $status
-                ];
-            }
-            return response()->json([
-                'success' => true,
-                'data' => $formatted
-            ], 200);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to load dashboard status counts.',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 
     public function FAQ(Request $request)
     {
-
         try {
-            $faq =  FAQ::query()->where('status', '1')->get();
+            $faq =  FAQ::where(['status'=> '1','scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id])->get();
             return response()->json([
                 'status' => 200,
                 'data' => $faq
@@ -367,11 +330,10 @@ class AuthController extends Controller
     public function Contacts(Request $request)
     {
         try {
-            $contact =   Contact::all();
+            $contact =   Contact::where(['active'=> 1,'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id])->get();
             return response()->json([
                 'status' => 200,
                 'data' => $contact,
-
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -448,20 +410,6 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    public function preview(Request $request)
-    {
-        $options = new Options();
-        $options->set('defaultFont', 'DejaVu Sans');
-        $options->setIsRemoteEnabled(true);
-        $dompdf = new Dompdf($options);
-        $html = view('preview')->render();
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
-        return response($dompdf->output(), 200)
-        ->header('Content-Type', 'application/pdf')
-        ->header('Content-Disposition', 'inline; filename="preview.pdf"');
-    }
     public function photo(Request $request)
     {
         $savedImages = [];
@@ -484,7 +432,8 @@ class AuthController extends Controller
                 } else {
                     $image->filename = null;
                 }
-                $image->project_id = $imageData['project_id'];
+                $image->Ngo_Unique_Id = $imageData['Ngo_Unique_Id'];
+                $image->Ack_Number = $imageData['Ack_Number'];
                 $image->type = $imageData['name'];
                 $image->latitude = $imageData['latitude'];
                 $image->longitude = $imageData['longitude'];
@@ -504,14 +453,14 @@ class AuthController extends Controller
     }
     public function submissionData(Request $request){
         $request->validate([
-            'project_id'=> 'required|exists:pmu_ir_proposal_lists,project_id',
+            'Ngo_Unique_Id'=> 'required|exists:pmu_ir_proposal_lists,Ngo_Unique_Id',
+            'Ack_Number'=> 'required|exists:pmu_ir_proposal_lists,Ack_Number',
         ]);
         try {
             $submissions = FormSubmission::select('form_fields.label as field_label', 'form_submissions.field_response')
             ->join('form_fields', 'form_submissions.field_id', '=', 'form_fields.id')
-            ->where('form_submissions.project_id', $request->project_id) 
+            ->where(['form_submissions.Ack_Number'=>$request->Ack_Number,'form_submissions.Ngo_Unique_Id'=>$request->Ngo_Unique_Id]) 
             ->get();
-
             return response()->json([
                 'data'=> $submissions,
                 'message' => 'Data Fetched Successfully.'

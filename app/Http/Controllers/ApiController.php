@@ -18,10 +18,10 @@ use Illuminate\Support\Facades\Log;
 class ApiController extends Controller
 {
     
-    public function steps()
+    public function steps(Request $request)
     {
         try {
-            $steps=FormField::distinct()->pluck('steps');
+            $steps=FormField::select('steps')->where([ 'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id,'active'=>1])->distinct()->pluck('steps');
             return response()->json(['steps'=>$steps], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -59,10 +59,11 @@ class ApiController extends Controller
     {
         $stepsArray = FormField::select('steps')->where([ 'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id])->distinct()->pluck('steps');
         $validated=$request->validate([
-            'scheme_id' => 'required|exists:schemes,id',
+            'scheme_id' => 'required|exists:schemes,scheme_id',
             'form_id' => 'required|exists:forms,id',
             'steps' => 'required|integer|in:'.implode(',',$stepsArray->toArray()),
-            'project_id'=> 'required|exists:pmu_ir_proposal_lists,project_id',
+            'Ngo_Unique_Id'=> 'required|exists:pmu_ir_proposal_lists,Ngo_Unique_Id',
+            'Ack_Number'=> 'required|exists:pmu_ir_proposal_lists,Ack_Number',
             'scheme_project_type'=>'required|in:1,2,3',
         ]);
         try {
@@ -71,13 +72,13 @@ class ApiController extends Controller
                     $query->with([
                         'option',
                         'formSubmission' => function ($q) use ($request) {
-                            $q->where('project_id', $request->project_id);
+                            $q->where(['Ack_Number'=>$request->Ack_Number,'Ngo_Unique_Id'=>$request->Ngo_Unique_Id]);
                         },
                         'children' => function ($childQuery) use ($request) {
                             $childQuery->with([
                                 'option',
                                 'formSubmission' => function ($q) use ($request) {
-                                    $q->where('project_id', $request->project_id);
+                                    $q->where(['Ack_Number'=>$request->Ack_Number,'Ngo_Unique_Id'=>$request->Ngo_Unique_Id]);
                                 }
                             ]);
                         }
@@ -110,7 +111,7 @@ class ApiController extends Controller
                 //$field->response = optional($submission)->field_response;
                 return $field;
             });
-            $proposalList = PmuIrProposalList::where('project_id', $request->project_id)->get();
+            $proposalList = PmuIrProposalList::where('Ack_Number', $request->Ack_Number)->get();
             return response()->json([
                 'form_fields' => $formFields->isNotEmpty() ? $formFields : null,
                 'proposal_list' => $proposalList->isNotEmpty() ? $proposalList : [],
@@ -132,12 +133,14 @@ class ApiController extends Controller
         $lastStep = FormField::where(['scheme_id' =>$request->scheme_id,'form_id'=>$request->form_id,'active'=>1])->max('steps');
         $stepsArray = FormField::select('steps')->where([ 'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id,'active'=>1])->distinct()->pluck('steps');
         $validated=$request->validate([
-            'scheme_id' => 'required|exists:schemes,id',
+            'scheme_id' => 'required|exists:schemes,scheme_id',
             'form_id' => 'required|exists:forms,id',
             'steps' => 'required|integer|min:1|in:'.implode(',',$stepsArray->toArray()),
-            'project_id'=>'required|exists:pmu_ir_proposal_lists,project_id',
+            'Ngo_Unique_Id'=> 'required|exists:pmu_ir_proposal_lists,Ngo_Unique_Id',
+            'Ack_Number'=>'required|exists:pmu_ir_proposal_lists,Ack_Number',
             'scheme_project_type'=>'required|in:1,2,3',
         ]); 
+        //Log::info('Validated Request Data:', $validated);
         try {
             $scheme = Scheme::with(['forms.fields.option'])->where('active',1)->findOrFail($validated['scheme_id']);
             $form = $scheme->forms->where('active',1)->firstWhere('id', $validated['form_id']);
@@ -180,12 +183,13 @@ class ApiController extends Controller
             //return response()->json($request->all(),200);
             try {
                 $results = [];
-                $fieldsToEncode=[3,7,20,25,26,28,29,30,44,45,115,51,55,56,57,116,60,61,62,63,65,66,67,68,70];
                 foreach ($request->fields as $field) {
                     $field_response = is_array($field['value']) ? json_encode($field['value']) : $field['value'];
+                    //Log::info('Field Response:', ['response' => $field_response]);
                     $record= FormSubmission::updateOrCreate(
                         [
-                            'project_id' => $request->project_id,
+                            'Ngo_Unique_Id' => $request->Ngo_Unique_Id,
+                            'Ack_Number' => $request->Ack_Number,
                             'form_id'       => $request->form_id,
                             'scheme_id'     => $request->scheme_id,
                             'steps'         => $request->steps,
@@ -202,7 +206,7 @@ class ApiController extends Controller
                     ];
                 }
                 $status = ((int) $request->steps === (int) $lastStep) ? 2 : 1;
-                PmuIrProposalList::where('project_id',$request->project_id)->update(['status'=>$status,'status_changed_by'=>JWTAuth::parseToken()->authenticate()->id,'status_updated_at'=>now()]);
+                PmuIrProposalList::where('Ack_Number',$request->Ack_Number)->update(['status'=>$status,'status_changed_by'=>JWTAuth::parseToken()->authenticate()->id,'status_updated_at'=>now()]);
                 return response()->json([
                     'steps'   => $request->steps,
                     'success' => true,
@@ -235,54 +239,4 @@ class ApiController extends Controller
             ], 500);
         }
     }
-    // public function stepsCheck(Request $request)
-    // {
-    //     $stepsArray = FormField::select('steps')->where([ 'scheme_id'=>5,'form_id'=>5,'active'=>1])->distinct()->pluck('steps');
-    //     $totalSteps=$stepsArray->toArray();
-    //     //$completedSteps=e$stepsArray->toArray();
-    //     return response()->json(end($totalSteps),200);
-    //     $lastStepSubmitted = FormSubmission::where(['Ngo_Unique_Id'=>$request->ngo_id])->orderByDesc('steps')->first();
-    //     $firstStep=$stepsArray->toArray();
-    //     $stepToUse = $request->steps ?? ($lastStepSubmitted + 1) ?? 1;
-    //     $validated=$request->validate([
-    //         'scheme_id' => 'required|exists:schemes,id',
-    //         'form_id' => 'required|exists:forms,id',
-    //         'steps' => 'sometimes|required|integer|in:'.implode(',',$stepsArray->toArray()),
-    //         'ngo_id'=> 'required',
-    //     ]);
-    //     //return response()->json($request->all(), 200);
-    //     try {
-    //        // $scheme = Scheme::with(['forms.fields.option','forms.fields.formSubmission'])->where('active',1)->findOrFail($validated['scheme_id']);
-    //        $scheme = Scheme::with([
-    //             'forms.fields.option',
-    //             'forms.fields.formSubmission' => function ($q) use ($request) {
-    //                 $q->where('Ngo_Unique_Id', $request->ngo_id);
-    //             }
-    //         ])->where('active', 1)->findOrFail($validated['scheme_id']);
-    //         if (!$scheme) {
-    //             return response()->json([
-    //                 'message' => 'Scheme not found.'
-    //             ], 404);
-    //         }
-    //         $form = $scheme?->forms->where('active',1)->firstWhere('id', $validated['form_id']);
-    //         if (!$form) {
-    //             return response()->json([
-    //                 'message' => 'Form not found under the specified scheme.'
-    //             ], 404);
-    //         }
-    //         //$form = $form->fields->where('steps', $validated['steps'])->where('active',1)->sortBy('order')->values();
-    //         $formFields = $form->fields->where('steps',$stepToUse)->where('active', 1)->values()->whereNotIn('id', $request->excludeIds)
-    //         ->map(function ($field) {
-    //             $submission = optional($field->formSubmissions)->first();
-    //             $field->response = optional($submission)->field_response;
-    //             return $field;
-    //         });
-    //         return response()->json($formFields, 200);
-    //     }catch (\Exception $e) {
-    //         return response()->json([
-    //             'message' => 'An error occurred while fetching the form.',
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
 }

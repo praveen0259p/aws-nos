@@ -12,7 +12,7 @@ class Form extends Model
     protected $hidden = ['active','created_at','updated_at'];
     public function scheme()
     {
-        return $this->belongsTo(Scheme::class);
+        return $this->belongsTo(Scheme::class,'scheme_id');
     }
     public function fields()
     {

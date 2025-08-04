@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('form_submissions', function (Blueprint $table) {
             $table->id();
+            $table->string('Ngo_Unique_Id', 255);
+            $table->string('Ack_Number');
             $table->integer('scheme_id');
             $table->integer('form_id');
             $table->integer('field_id');
-            $table->string('field_response');
+            $table->longText('field_response');
+            $table->integer('steps');
             $table->integer('user_id');
-            // $table->rememberToken();
-            // $table->string('api_token', 80)->unique()->nullable()->default(null);
-            // $table->string('role')->default('user');
-            // $table->string('status')->default('active');
             $table->timestamps();
         });
+        DB::statement("ALTER TABLE `form_submissions` MODIFY `updated_at` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP");
     }
 
     /**

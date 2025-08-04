@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
+use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('galleries', function (Blueprint $table) {
             $table->id();
-            $table->integer('scheme_id');
-            $table->integer('form_id');
-            $table->string('Ngo_Unique_Id'); 
-            $table->string('path');
-            $table->integer('image_type')->default(1); //default 
-            $table->decimal('latitude', 10, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
+            $table->string('Ack_Number', 255); 
+            $table->string('Ngo_Unique_Id', 255);
+            $table->string('filename', 255);
+            $table->string('type', 55)->nullable();
+            $table->string('latitude', 55)->nullable();
+            $table->string('longitude', 55)->nullable();
             $table->integer('active')->default(1);
             $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
+            $table->timestamp('updated_at')->nullable();
         });
+        DB::statement("ALTER TABLE `galleries` MODIFY `updated_at` TIMESTAMP NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP");
     }
 
     /**

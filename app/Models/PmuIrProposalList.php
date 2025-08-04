@@ -9,7 +9,7 @@ class PmuIrProposalList extends Model
 {
     public function formSubmissions()
     {
-        return $this->hasMany(FormSubmission::class, 'project_id', 'project_id');
+        return $this->hasMany(FormSubmission::class, 'Ack_Number', 'Ack_Number');
     }
 
 }
