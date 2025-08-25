@@ -11,4 +11,17 @@ class Scheme extends Model
     {
         return $this->hasMany(Form::class,'scheme_id')->where('active', 1);
     }
+    
+    public function faqs()
+    {
+        return $this->hasMany(FAQ::class);
+    }
+    public function scheme()
+    {
+        return $this->belongsTo(Scheme::class);
+    }
+    public function contacts()
+    {
+        return $this->hasMany(Contact::class);
+    }
 }

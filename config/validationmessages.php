@@ -1,5 +1,6 @@
 <?php
 return [
+    'required' => ':attribute field is required.',
     '14.regex' => 'The mobile number must start with 6, 7, 8, or 9 and must be 10 digits long.',
 ];
 

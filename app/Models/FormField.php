@@ -10,7 +10,7 @@ class FormField extends Model
     protected $hidden = ['created_at','updated_at'];
     public function form()
     {
-        return $this->belongsTo(Form::class);
+        return $this->belongsToMany(Form::class, 'form_formfield', 'formfield_id', 'form_id');
     }
     public function option()
     {
@@ -28,8 +28,4 @@ class FormField extends Model
     {
         return $this->hasMany(FormField::class, 'parent_id')->with('children');
     }
-    // public function propoalList()
-    // {
-    //     return $this->hasOne(FormSubmission::class, 'field_id', 'id');
-    // }
 }

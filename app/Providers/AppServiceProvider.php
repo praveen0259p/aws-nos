@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\FormFieldOption;
 use App\Models\User;
+use Maatwebsite\Excel\Facades\Excel;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -21,9 +23,40 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        //$filePath = 'G://E-anudaan//PMU_DRUGS_Final2.xlsx';
+        // $filePath = public_path('form_fields_with _column_name.xlsx');
+        // //dd($filePath);
+        // if (file_exists($filePath)) {
+        //     echo "File exists!";
+        // } else {
+        //     echo  "File does NOT exist!";
+        // }
+        // //die;
+        // // Read the Excel file into an array
+        // $data = Excel::toArray([], $filePath);
+        // for ($i = 1; $i <= 87; $i++) {
+        //     echo"<pre>";
+        //     print_r($data[0][$i]);
+        //     echo "<br>";
+        //     DB::table('form_formfield')
+        //     ->where('form_id', 1)
+        //     ->where('formfield_id', $data[0][$i][0])
+        //     ->update([
+        //         'column_name'   => $data[0][$i][2],
+        //         'table_name'    => $data[0][$i][3],
+        //     ]);
+        // }
         //$this->insertState();
         //$this->insertDistrict();
         //$this->insertPmu();
+        //$this->insertPivotTable();
+        // DB::listen(function ($query) {
+        //     Log::info('SQL', [
+        //         'sql' => $query->sql,
+        //         'bindings' => $query->bindings,
+        //         'time' => $query->time . ' ms'
+        //     ]);
+        // });
     }
     protected function insertState()
     {
@@ -115,5 +148,16 @@ class AppServiceProvider extends ServiceProvider
             ]);
         }
         //User::Create()
+    }
+    protected function insertPivotTable()
+    {
+        for($i=92;$i<=158;$i++)
+        {
+            DB::table('form_formfield')->insert([
+                'form_id' => 2,
+                'formfield_id' => $i,
+            ]);
+        }
+        
     }
 }

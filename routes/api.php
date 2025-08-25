@@ -37,3 +37,4 @@ Route::middleware('jwt')->group(function () {
     Route::post('/submissionData', [AuthController::class, 'submissionData']);
 });
 
+Route::post('/cronData', [AuthController::class, 'cronData'])->middleware('ip.restrict');;

@@ -8,6 +8,7 @@ use App\Models\PmuIrProposalList;
 use App\Models\User;
 use App\Models\Contact;
 use App\Models\FormFieldOption;
+use App\Models\FormFormfield;
 use App\Models\FAQ;
 use App\Models\Gallery;
 use App\Models\FormSubmission;
@@ -118,11 +119,11 @@ class AuthController extends Controller
             $fin_year = empty($request->fin_year)?now()->format('Y'). '-' .now()->addYear()->format('y'):$request->fin_year; 
             foreach ($result as $data) {
                 $rawCounts = PmuIrProposalList::where([
-                        'Financial_year'=>$fin_year,
+                        'financial_year'=>$fin_year,
                         'scheme_id'=>$request->scheme_id,
                         'form_id'=>$request->form_id,
-                        'Lgd_State_Code' => $data['lgd_state_code'],
-                        'Lgd_District_Code' => $data['lgd_district_code']
+                        'state_code_lgd' => $data['lgd_state_code'],
+                        'district_code_lgd' => $data['lgd_district_code']
                     ])
                     ->selectRaw('status, COUNT(*) as total')
                     ->groupBy('status')
@@ -155,13 +156,14 @@ class AuthController extends Controller
     }
     public function GetProposalListShrest(Request $request)
     {
-        $stepsArray = FormField::select('steps')->where([ 'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id,'active'=>1])->distinct()->pluck('steps');
+        $stepsArray = FormFormfield::select('steps')->where(['form_id'=>$request->form_id,'active'=>1])->distinct()->pluck('steps');
         $totalSteps=$stepsArray->toArray();
         $request->validate([
+            'scheme_id' => 'required|exists:schemes,scheme_id',
+            'form_id' => 'required|exists:forms,id',
             'status' => 'required|in:' . implode(',', array_keys($this->labels)),
         ]);
         $fin_year = empty($request->fin_year)?now()->format('Y'). '-' .now()->addYear()->format('y'):$request->fin_year; 
-        //return response()->json($fin_year,200);
         try {
             $districtCodes = JWTAuth::parseToken()->authenticate()->district_id;
             $allProposals = collect();
@@ -169,41 +171,38 @@ class AuthController extends Controller
                 $query = PmuIrProposalList::query()
                 ->with([
                     'formSubmissions' => function ($q) {
-                        $q->select('id','Ngo_Unique_Id', 'Ack_Number', 'field_id');
+                        $q->select('id','ngo_unique_id', 'acknowledgement_number','field_response','steps');
                     },
-                    'formSubmissions.field:id,steps'
+                    //'formSubmissions.field:id,steps'
                 ])
                 ->where([
-                    'Financial_year'=>$fin_year,
+                    'financial_year'=>$fin_year,
                     'scheme_id'=>$request->scheme_id,
                     'form_id'=>$request->form_id,
                     'status'=>$request->status,
-                    'Lgd_State_Code'=>$data['lgd_state_code'],
-                    'Lgd_District_Code'=>$data['lgd_district_code']
+                    'state_code_lgd'=>$data['lgd_state_code'],
+                    'district_code_lgd'=>$data['lgd_district_code']
                 ])
                 ->get();
                 $allProposals = $allProposals->merge($query);
             }
             return response()->json([
-            'status' => 200,
-            'count'=> $allProposals->count(),
-            'proposals' => $allProposals->map(function ($proposal) use ($totalSteps) {
-                $maxStepValue = $proposal->formSubmissions
-                    ->map(fn($sub) => optional($sub->field)->steps)
-                    ->filter()
-                    ->max();
-                $maxStep = $maxStepValue !== null ? $maxStepValue + 1 : 1;
-                $totalStep = !empty($totalSteps) ? max($totalSteps) : 0;
-                return array_merge(
-                    $proposal->makeHidden('formSubmissions')->toArray(),
-                    [
-                        'max_step' => $maxStep,
-                        'completedStep' => $maxStepValue,
-                        'totalStep' => $totalStep,
-                    ]
-                );
-            }),
-        ]);
+                'status' => 200,
+                'count'=> $allProposals->count(),
+                'proposals' => $allProposals->map(function ($proposal) use ($totalSteps) {
+                    $maxStepValue = $proposal->formSubmissions->map(fn($sub) => $sub->steps)->filter()->max();
+                    $maxStep = $maxStepValue !== null ? $maxStepValue + 1 : 1;
+                    $totalStep = !empty($totalSteps) ? max($totalSteps) : 0;
+                    return array_merge(
+                        $proposal->makeHidden('formSubmissions')->toArray(),
+                        [
+                            'max_step' => $maxStep,
+                            'completedStep' => $maxStepValue,
+                            'totalStep' => $totalStep,
+                        ]
+                    );
+                }),
+            ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 400,
@@ -211,7 +210,7 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
+    } 
 
 
     private static function sendOtp($mobile)
@@ -224,7 +223,7 @@ class AuthController extends Controller
         $host = request()->getHost();
 
         if ($host ==='164.100.77.235') {
-            $apiUrl = 'https://10.246.21.206/api/send/sms';
+            $apiUrl = 'http://10.246.21.206/api/send/sms';
         } else {
             $apiUrl = 'https://pmajay.dosje.gov.in/api/send/sms';
         }
@@ -269,14 +268,10 @@ class AuthController extends Controller
             ], 500);
         }
     }
-    public function menus(Request $request)
+    public function menus()
     {
-        try {
-            $request->validate([
-                'scheme_id' => 'required|exists:schemes,scheme_id',
-                'form_id' => 'required|exists:forms,id',
-            ]); 
-            $schemeMenus =Menu::where(['parent_id'=> 0,'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id])->with('children')->get();
+        try { 
+            $schemeMenus =Menu::where(['parent_id'=> 0])->with('children')->get()->append('icon_url');
             if ($schemeMenus->isEmpty()) {
                 return response()->json([
                     'status' => 404,
@@ -309,13 +304,16 @@ class AuthController extends Controller
         }
     }
 
-    public function FAQ(Request $request)
+    public function FAQ()
     {
         try {
-            $faq =  FAQ::where(['status'=> '1','scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id])->get();
+            $schemes = Scheme::with(['faqs' => function ($query) {
+                $query->where('status', 1);
+            }])->get();
+
             return response()->json([
                 'status' => 200,
-                'data' => $faq
+                'data' => $schemes
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -327,13 +325,16 @@ class AuthController extends Controller
     }
 
 
-    public function Contacts(Request $request)
+    public function Contacts()
     {
         try {
-            $contact =   Contact::where(['active'=> 1,'scheme_id'=>$request->scheme_id,'form_id'=>$request->form_id])->get();
+            $schemes = Scheme::with(['contacts' => function ($query) {
+                $query->where('active', 1);
+            }])->get();
+
             return response()->json([
                 'status' => 200,
-                'data' => $contact,
+                'data' => $schemes,
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -342,6 +343,7 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+
     }
 
     public function StateFilter(Request $request)
@@ -432,8 +434,8 @@ class AuthController extends Controller
                 } else {
                     $image->filename = null;
                 }
-                $image->Ngo_Unique_Id = $imageData['Ngo_Unique_Id'];
-                $image->Ack_Number = $imageData['Ack_Number'];
+                $image->ngo_unique_id = $imageData['ngo_unique_id'];
+                $image->acknowledgement_number = $imageData['acknowledgement_number'];
                 $image->type = $imageData['name'];
                 $image->latitude = $imageData['latitude'];
                 $image->longitude = $imageData['longitude'];
@@ -453,13 +455,13 @@ class AuthController extends Controller
     }
     public function submissionData(Request $request){
         $request->validate([
-            'Ngo_Unique_Id'=> 'required|exists:pmu_ir_proposal_lists,Ngo_Unique_Id',
-            'Ack_Number'=> 'required|exists:pmu_ir_proposal_lists,Ack_Number',
+            'ngo_unique_id'=> 'required|exists:proposal,ngo_unique_id',
+            'acknowledgement_number'=> 'required|exists:proposal,acknowledgement_number',
         ]);
         try {
-            $submissions = FormSubmission::select('form_fields.label as field_label', 'form_submissions.field_response')
+            $submissions = FormSubmission::select('form_fields.header as header','form_fields.label as field_label','form_fields.type as type', 'form_submissions.field_response')
             ->join('form_fields', 'form_submissions.field_id', '=', 'form_fields.id')
-            ->where(['form_submissions.Ack_Number'=>$request->Ack_Number,'form_submissions.Ngo_Unique_Id'=>$request->Ngo_Unique_Id]) 
+            ->where(['form_submissions.acknowledgement_number'=>$request->acknowledgement_number,'form_submissions.ngo_unique_id'=>$request->ngo_unique_id]) 
             ->get();
             return response()->json([
                 'data'=> $submissions,
@@ -472,5 +474,40 @@ class AuthController extends Controller
                 'message' => 'Failed to retrieve form submissions Data.'
             ], 500);
         }
+    }
+    public function cronData(){
+        try {
+            $submissions = FormSubmission::select(
+                    'form_submissions.acknowledgement_number',
+                    'form_formfield.column_name',
+                    'form_formfield.table_name',
+                    'form_submissions.field_response',
+                )
+                ->join('form_formfield', function ($join) {
+                    $join->on('form_submissions.field_id', '=', 'form_formfield.formfield_id')
+                        ->on('form_submissions.form_id', '=', 'form_formfield.form_id');
+                })
+                ->whereNotNull('form_formfield.column_name')->whereNotNull('form_formfield.table_name')
+                ->whereDate('form_submissions.created_at', '<', now()->toDateString())
+                ->get()
+                ->groupBy('acknowledgement_number')
+                ->map(function ($items) {
+                    return $items->map(function ($item) {
+                        unset($item['acknowledgement_number']);
+                        return $item;
+                    });
+                });
+                return response()->json([
+                    'data' => $submissions,
+                    'message' => 'Data Fetched Successfully.'
+                ], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to get form submissions data: ' . $e->getMessage());
+            return response()->json([
+                'data' => null,
+                'message' => 'Failed to retrieve form submissions Data.'
+            ], 500);
+        }
+
     }
 }

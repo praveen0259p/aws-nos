@@ -6,5 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Contact extends Model
 {
-    //
+    public function scheme()
+    {
+        return $this->belongsTo(Scheme::class,'scheme_id');
+    }
 }
