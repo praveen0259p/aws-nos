@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Version>16.00</Version>
+ </DocumentProperties>
+ <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
+  <AllowPNG/>
+ </OfficeDocumentSettings>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>13470</WindowHeight>
+  <WindowWidth>28800</WindowWidth>
+  <WindowTopX>0</WindowTopX>
+  <WindowTopY>0</WindowTopY>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Arial"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s62">
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Color="#0000FF" ss:Bold="1"/>
+  </Style>
+  <Style ss:ID="s63">
+   <NumberFormat ss:Format="yyyy\-mm\-dd\ hh:mm:ss"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="8" ss:ExpandedRowCount="18" x:FullColumns="1"
+   x:FullRows="1">
+   <Column ss:Width="15.75"/>
+   <Column ss:Width="432"/>
+   <Column ss:Width="88.5"/>
+   <Column ss:Width="108"/>
+   <Column ss:Width="100.5"/>
+   <Column ss:Width="95.25"/>
+   <Column ss:Width="1013.25"/>
+   <Column ss:Width="144"/>
+   <Row>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">id</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">scheme_name</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">is_available_new</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">is_available_ongoing</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">history_for_ongoing</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">date</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Remarks</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">scheme_project_short_name</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">1</Data></Cell>
+    <Cell><Data ss:Type="String">Integrated Rehabilititation Centre for Addicts(IRCA)</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2022-04-11T14:58:36.000</Data></Cell>
+    <Cell><Data ss:Type="String">Opened for 1st Installment in FY 2022-23 as requested by DS without any change. Action Date 11-04-2022  Opened for Selected NGOs 07102021 Ongoing opned on 11th May 2021</Data></Cell>
+    <Cell><Data ss:Type="String">IRCA</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">2</Data></Cell>
+    <Cell><Data ss:Type="String">Programme for Prevention of Alcoholism and Drugs abuse at Work Place(WPP)</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2020-04-14T14:58:49.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">PWPP</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">3</Data></Cell>
+    <Cell><Data ss:Type="String">Reigional Resource and Training Centres(RRTC)</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2020-04-14T14:58:49.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">RRTC</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">4</Data></Cell>
+    <Cell><Data ss:Type="String">Awareness-Cum Deaddiction Camps(ACDC)</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2020-04-14T14:58:52.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">ACDC</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">5</Data></Cell>
+    <Cell><Data ss:Type="String">Technical Exchange and Personal Developement Programme</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2020-04-14T14:58:55.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">TEPD</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">6</Data></Cell>
+    <Cell><Data ss:Type="String">Preventive Education and Awareness Generation thought media Publicity</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2020-04-14T14:58:58.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">PEAG</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">7</Data></Cell>
+    <Cell><Data ss:Type="String">NGO forum for Drugs Abuse Prevention</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2020-04-14T14:59:02.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">NDAP</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">8</Data></Cell>
+    <Cell><Data ss:Type="String">Innovative Intervention to Strenthen to Community based Rehabilitation</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2020-04-14T14:59:04.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">IICR</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">9</Data></Cell>
+    <Cell><Data ss:Type="String">Survey,Studies,Evaluation and Research on the subject covered under the Scheme </Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2020-04-14T14:59:08.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">SSER</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">10</Data></Cell>
+    <Cell><Data ss:Type="String">Community based Peer led Intervention (CPI) for Early Drug Use Prevention among Adolescents</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2022-04-11T14:58:36.000</Data></Cell>
+    <Cell><Data ss:Type="String">Opened for 1st Installment in FY 2022-23 as requested by DS without any change. Action Date 11-04-2022  Opened for Selected NGOs 07102021Ongoing opned on 11th May 2021</Data></Cell>
+    <Cell><Data ss:Type="String">CPLI</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">11</Data></Cell>
+    <Cell><Data ss:Type="String">Outreach and Drop in Centres (ODIC)</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2022-04-11T14:58:36.000</Data></Cell>
+    <Cell><Data ss:Type="String">Opened for 1st Installment in FY 2022-23 as requested by DS without any change. Action Date 11-04-2022  Opened for Selected NGOs 07102021Ongoing opned on 11th May 2021</Data></Cell>
+    <Cell><Data ss:Type="String">ODIC</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">12</Data></Cell>
+    <Cell><Data ss:Type="String">SLCA</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String">N</Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2022-04-11T14:58:36.000</Data></Cell>
+    <Cell><Data ss:Type="String">Opened SLCA for new applications on dated 31-10-2023 (mail 30-10-2023) Opened for 1st Installment in FY 2022-23 as requested by DS without any change. Action Date 11-04-2022  Ongoing opned on 11th May 2021</Data></Cell>
+    <Cell><Data ss:Type="String">SLCA</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">13</Data></Cell>
+    <Cell><Data ss:Type="String">District De-addiction Centre (DDAC)</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2022-02-25T11:20:13.000</Data></Cell>
+    <Cell><Data ss:Type="String">Opned again on 25-02-2022 and will be closed on 07-03-2022 New Project Closed on date 2021-10-29 11:20:13, As per US Sh Rajeev's Direction to close. Opened for Ongoin project for NGO -SPMRTF21BWN on 2nd Feb 2023</Data></Cell>
+    <Cell><Data ss:Type="String">DDAC</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">14</Data></Cell>
+    <Cell><Data ss:Type="String">De-addiction Centre for Female</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2023-03-10T15:12:53.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">DACF</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">15</Data></Cell>
+    <Cell><Data ss:Type="String">De-addiction Centre for Male Children</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2023-03-10T15:12:53.000</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell><Data ss:Type="String">DACC</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">16</Data></Cell>
+    <Cell><Data ss:Type="String">Integrated Rehabilititation Centre for Addicts (IRCA) for Female </Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2025-06-17T15:12:53.000</Data></Cell>
+    <Cell><Data ss:Type="String">Opned for IRCA Female on 17-06-2025.</Data></Cell>
+    <Cell><Data ss:Type="String">IRCAF</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="Number">17</Data></Cell>
+    <Cell><Data ss:Type="String">Integrated Rehabilititation Centre for Addicts (IRCA) for Children</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String">Y</Data></Cell>
+    <Cell><Data ss:Type="String"></Data></Cell>
+    <Cell ss:StyleID="s63"><Data ss:Type="DateTime">2025-06-26T16:12:18.000</Data></Cell>
+    <Cell><Data ss:Type="String">Opned for IRCA Children on 26-06-2025.</Data></Cell>
+    <Cell><Data ss:Type="String">IRCAC</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <Selected/>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>21</ActiveRow>
+     <ActiveCol>1</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>

@@ -29,7 +29,7 @@ class User extends Authenticatable implements JWTSubject
         'role_type',
         'district_id',
     ];
-    protected $casts=['district_id' => 'array'];
+    protected $casts=['district_id' => 'array','otp_expires_at' => 'datetime',];
     public function getJWTIdentifier()
     {
         return $this->getKey();
@@ -40,7 +40,9 @@ class User extends Authenticatable implements JWTSubject
      */
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'otp_expires_at' => $this->otp_expires_at ? $this->otp_expires_at->timestamp : null,
+        ];
     }
 }
 

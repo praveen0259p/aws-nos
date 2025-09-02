@@ -14,5 +14,8 @@ class PmuIrProposalList extends Model
     {
         return $this->hasMany(FormSubmission::class, 'acknowledgement_number', 'acknowledgement_number');
     }
-
+    public function inspectionDetail()
+    {
+        return $this->belongsTo(InspectionDetail::class, 'acknowledgement_number', 'acknowledgement_number');
+    }
 }

@@ -32,6 +32,7 @@ Route::middleware('jwt')->group(function () {
     Route::post('/profile', [AuthController::class, 'profile']);
     Route::post('/statefilter', [AuthController::class, 'StateFilter']);
     Route::post('/districtfilter', [AuthController::class, 'DistrictFilter']);
+    Route::post('/getPhotoFields', [AuthController::class, 'getPhotoFields']);
     Route::post('/preview', [AuthController::class, 'preview']);
     Route::post('/photo', [AuthController::class, 'photo']);
     Route::post('/submissionData', [AuthController::class, 'submissionData']);

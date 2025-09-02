@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //$filePath = 'G://E-anudaan//PMU_DRUGS_Final2.xlsx';
-        // $filePath = public_path('form_fields_with _column_name.xlsx');
+        // $filePath = public_path('PMU_DRUGS_Final2.csv');
         // //dd($filePath);
         // if (file_exists($filePath)) {
         //     echo "File exists!";
@@ -33,17 +33,19 @@ class AppServiceProvider extends ServiceProvider
         // }
         // //die;
         // // Read the Excel file into an array
+        
         // $data = Excel::toArray([], $filePath);
-        // for ($i = 1; $i <= 87; $i++) {
+        // //dd($data[0]);
+        // //dd(count($data[0])-1);
+        // for ($i = 1; $i <= count($data[0])-1; $i++) {
         //     echo"<pre>";
-        //     print_r($data[0][$i]);
+        //     print_r($data[0][$i][0]);
+        //     print_r($data[0][$i][14]);
         //     echo "<br>";
-        //     DB::table('form_formfield')
-        //     ->where('form_id', 1)
-        //     ->where('formfield_id', $data[0][$i][0])
+        //     DB::table('proposal')
+        //     ->where('acknowledgement_number', $data[0][$i][14])
         //     ->update([
-        //         'column_name'   => $data[0][$i][2],
-        //         'table_name'    => $data[0][$i][3],
+        //         'process_id'  => $data[0][$i][0],
         //     ]);
         // }
         //$this->insertState();
