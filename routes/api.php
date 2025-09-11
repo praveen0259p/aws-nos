@@ -17,6 +17,7 @@ Route::post('/verifyOtp', [AuthController::class, 'verifyOtp']);
 Route::post('/contact', [AuthController::class, 'Contacts']);
 Route::post('/stepsCheck',[ApiController::class,'stepsCheck']);
 Route::post('/faq', [AuthController::class, 'FAQ']);
+Route::get('/version', [AuthController::class, 'Version']);
 
 Route::middleware('jwt')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

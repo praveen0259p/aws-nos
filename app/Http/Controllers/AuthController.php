@@ -115,40 +115,36 @@ class AuthController extends Controller
         try {
             $statusLabels = $this->labels;
             $dashboard = array_fill_keys(array_keys($statusLabels), 0);
-            $result = JWTAuth::parseToken()->authenticate()->district_id;
-            if (!is_array($result) || empty($result)) {
+            $districts = collect(JWTAuth::parseToken()->authenticate()->district_id);
+            if ($districts->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'No district IDs found for the user.'
                 ], 422);
             }
-            //return response()->json($result, 200);
-            $fin_year = empty($request->fin_year)?now()->format('Y'). '-' .now()->addYear()->format('y'):$request->fin_year; 
-            foreach ($result as $data) {
-                $rawCounts = PmuIrProposalList::where([
-                        'financial_year'=>$fin_year,
-                        'scheme_id'=>$request->scheme_id,
-                        'form_id'=>$request->form_id,
-                        'state_code_lgd' => $data['lgd_state_code'],
-                        'district_code_lgd' => $data['lgd_district_code']
-                    ])
-                    ->selectRaw('status, COUNT(*) as total')
-                    ->groupBy('status')
-                    ->pluck('total', 'status')
-                    ->toArray();
+            $fin_year = $request->fin_year ?? now()->format('Y') . '-' . now()->addYear()->format('y');
+            $rawCounts = PmuIrProposalList::where([
+                    'financial_year' => $fin_year,
+                    'scheme_id' => $request->scheme_id,
+                    'form_id' => $request->form_id,
+                ])
+                ->whereIn('state_code_lgd', $districts->pluck('lgd_state_code'))
+                ->whereIn('district_code_lgd', $districts->pluck('lgd_district_code'))
+                ->selectRaw('status, COUNT(*) as total')
+                ->groupBy('status')
+                ->pluck('total', 'status')
+                ->toArray();
 
-                foreach ($statusLabels as $status => $label) {
-                    $dashboard[$status] += $rawCounts[$status] ?? 0;
-                }
+            foreach ($statusLabels as $status => $label) {
+                $dashboard[$status] = $rawCounts[$status] ?? 0;
             }
-            $formatted = [];
-            foreach ($dashboard as $status => $count) {
-                $formatted[] = [
+            $formatted = collect($dashboard)->map(function ($count, $status) use ($statusLabels) {
+                return [
                     'name' => $statusLabels[$status],
                     'count' => $count,
                     'status' => $status
                 ];
-            }
+            })->values();
             return response()->json([
                 'success' => true,
                 'data' => $formatted
@@ -160,6 +156,7 @@ class AuthController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+
     }
     public function GetProposalListShrest(Request $request)
     {
@@ -172,27 +169,21 @@ class AuthController extends Controller
         ]);
         $fin_year = empty($request->fin_year)?now()->format('Y'). '-' .now()->addYear()->format('y'):$request->fin_year; 
         try {
-            $districtCodes = JWTAuth::parseToken()->authenticate()->district_id;
+            $districtCodes = collect(JWTAuth::parseToken()->authenticate()->district_id);
+            $stateCodes = $districtCodes->pluck('lgd_state_code')->unique();
+            $districtCodes = $districtCodes->pluck('lgd_district_code')->unique();
             $allProposals = collect();
-            foreach($districtCodes as $data) {
-                $query = PmuIrProposalList::query()
-                ->with([
-                    'formSubmissions' => function ($q) {
-                        $q->select('id','ngo_unique_id', 'acknowledgement_number','field_response','steps');
-                    },
-                    //'formSubmissions.field:id,steps'
-                ])
-                ->where([
-                    'financial_year'=>$fin_year,
-                    'scheme_id'=>$request->scheme_id,
-                    'form_id'=>$request->form_id,
-                    'status'=>$request->status,
-                    'state_code_lgd'=>$data['lgd_state_code'],
-                    'district_code_lgd'=>$data['lgd_district_code']
-                ])
-                ->get();
-                $allProposals = $allProposals->merge($query);
-            }
+            $allProposals = PmuIrProposalList::with([
+                'user:id,user_name',
+                'formSubmissions:id,ngo_unique_id,acknowledgement_number,field_response,steps'
+            ])
+            ->where('financial_year', $fin_year)
+            ->where('scheme_id', $request->scheme_id)
+            ->where('form_id', $request->form_id)
+            ->where('status', $request->status)
+            ->whereIn('state_code_lgd', $stateCodes)
+            ->whereIn('district_code_lgd', $districtCodes)
+            ->get();
             return response()->json([
                 'status' => 200,
                 'count'=> $allProposals->count(),
@@ -429,7 +420,7 @@ class AuthController extends Controller
             return response()->json([
                 'data' => $fields,
             ], 200);
-        } catch (\Exception $e) {
+        } catch (\Exception $e) { 
             Log::error('Error uploading images: ' . $e->getMessage());
             return response()->json([
                 'message' => 'Failed to fetch photo fields.',
@@ -535,5 +526,11 @@ class AuthController extends Controller
             ], 500);
         }
 
+    }
+    public function Version()
+    {
+        return response()->json([
+            'version'=>'1.2.1',
+        ]);
     }
 }
