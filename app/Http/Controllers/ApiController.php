@@ -21,7 +21,7 @@ use GuzzleHttp\Exception\RequestException;
 
 class ApiController extends Controller
 {
-
+    private $eanudannUrl = 'http://10.22.13.209:8005/dbtbharatws/rest/pmu/v1';
     public function steps(Request $request)
     {
         try {
@@ -140,7 +140,7 @@ class ApiController extends Controller
             'ngo_unique_id' => 'required|exists:proposal,ngo_unique_id',
             'acknowledgement_number' => 'required|exists:proposal,acknowledgement_number',
         ]);
-         Log::info('All Request:' . PHP_EOL . print_r($request->all(), true));
+        //Log::info('All Request:' . PHP_EOL . print_r($request->all(), true));
         try {
             $fieldsInput = $request->input('fields',[]);
             if (is_string($fieldsInput)) {
@@ -173,11 +173,11 @@ class ApiController extends Controller
             }
             $messages = config('validationmessages') ?? [];
             $validator = Validator::make($transformedInput, $validationRules, $messages, $customAttributes);
-            $validator->sometimes(['rent_month', 'rent_area_space'], 'numeric', function ($transformedInput) {
-                return $transformedInput->rented_owned === 'Rented';
-            });
-            // Log::info('Input Request:' . PHP_EOL . print_r($transformedInput, true));
-            // Log::info('Validation Rule:' . PHP_EOL . print_r($validationRules, true));
+            // $validator->sometimes(['rent_month', 'rent_area_space'], 'numeric', function ($transformedInput) {
+            //     return isset($transformedInput['rented_owned']) && $transformedInput['rented_owned'] === 'Rented';
+            // });
+            Log::info('Input Request:' . PHP_EOL . print_r($transformedInput, true));
+            Log::info('Validation Rule:' . PHP_EOL . print_r($validationRules, true));
             if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors()], 422);
             }
@@ -262,6 +262,26 @@ class ApiController extends Controller
                         ->where('form_id', $request->form_id)
                         ->where('user_id', JWTAuth::parseToken()->authenticate()->id)
                         ->update(['inspection_id' => $inspection->inspection_id]);
+                        // $token= $this->Login();
+                        // if($token)
+                        // {
+                        //     $response=$this->sendStatus($token,$inspection);
+                        //     if (isset($response['authorization']) && $response['authorization'] === 'Success') {
+                        //         $updated=InspectionDetail::where('inspection_id', $inspection->inspection_id)->update(['pfrId' => $response['statusupdateresp']['pfrId']]);
+                        //         if ($updated) {
+                        //             Log::info('Pfr Id successfully updated.', ['pfrId' => $response['statusupdateresp']['pfrId']]);
+                        //         } else {
+                        //             Log::info('No rows were updated.', [
+                        //                 'inspection_id' => $inspection->inspection_id,
+                        //                 'pfrId' => $response['statusupdateresp']['pfrId']
+                        //             ]);
+                        //         }
+                        //     } else {
+                        //         Log::warning('Status update failed.', ['response' => $response]);
+                        //     }
+                        // }else{
+                        //     Log::error('Invalid Credentials: Authentication failed for user.');
+                        // } 
                 }
                 return response()->json([
                     'steps'   => $request->steps,
@@ -275,9 +295,11 @@ class ApiController extends Controller
                     'field_id' => $field['field_id'],
                     'value'    => $field['value'],
                     'error'    => $e->getMessage(),
+                    'line'  => $e->getLine(),
                 ]);
                 return response()->json([
                     'success' => false,
+                    'line'  => $e->getLine(),
                     'message' => 'An error occurred while processing form data.',
                     'error'   => $e->getMessage()
                 ], 500);
@@ -291,7 +313,8 @@ class ApiController extends Controller
             Log::error('FormSubmission failed', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'An error occurred while submitting the form.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'line'  => $e->getLine(),
             ], 500);
         }
     }
@@ -323,164 +346,27 @@ class ApiController extends Controller
     }
     public function stepsCheck(Request $request)
     {
-        //$token= $this->Login();
-        //return $token;
-        $fields = $request->input('fields');
-
-        if (is_string($fields)) {
-            $fields = json_decode($fields, true);
-        }
-
-        if (!is_array($fields)) {
-            return response()->json(['error' => 'Invalid or missing fields data'], 400);
-        }
-
-        $uploadedFiles = [];
-        $results = [];
-
-        foreach ($fields as $field) {
-            $fieldId = $field['field_id'];
-            $fileKey = $field['value']['path'] ?? null;
-            Log::info("Processing file key: " . print_r($fileKey, true));
-
-            $filePath = null;
-
-            // 🔍 Check if there's an existing record to delete old image
-            $existingRecord = FormSubmission::where([
-                'ngo_unique_id' => $request->ngo_unique_id,
-                'acknowledgement_number' => $request->acknowledgement_number,
-                'form_id' => $request->form_id,
-                'scheme_id' => $request->scheme_id,
-                'steps' => $request->steps,
-                'field_id' => $fieldId,
-                'user_id' => '120',
-            ])->first();
-
-            if ($existingRecord) {
-                $existingResponse = json_decode($existingRecord->field_response, true);
-
-                if (isset($existingResponse['path'])) {
-                    $oldFilePath = public_path($existingResponse['path']);
-
-                    if (file_exists($oldFilePath)) {
-                        unlink($oldFilePath); // 🧹 Delete the old image
-                        Log::info("Deleted old image: " . $oldFilePath);
-                    }
-                }
-            }
-
-            // ⬇️ Process new file upload
-            if ($fileKey && $request->hasFile($fileKey)) {
-                $file = $request->file($fileKey);
-                $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $destinationPath = public_path('uploads/gallery');
-
-                if (!file_exists($destinationPath)) {
-                    mkdir($destinationPath, 0755, true);
-                }
-
-                $file->move($destinationPath, $filename);
-                $filePath = 'uploads/gallery/' . $filename;
-
-                $uploadedFiles[] = [
-                    'field_id' => $fieldId,
-                    'file_path' => $filePath,
-                ];
-            } else {
-                $uploadedFiles[] = [
-                    'field_id' => $fieldId,
-                    'file_path' => null,
-                    'error' => "File with key '{$fileKey}' not found in request.",
-                ];
-            }
-
-            // 🧾 Prepare and save field response
-            $fieldValue = $field['value'];
-
-            if ($filePath) {
-                $fieldValue['path'] = $filePath;
-            }
-
-            $field_response = is_array($fieldValue) ? json_encode($fieldValue) : $fieldValue;
-
-            // Save or update record
-            $record = FormSubmission::updateOrCreate(
-                [
-                    'ngo_unique_id' => $request->ngo_unique_id,
-                    'acknowledgement_number' => $request->acknowledgement_number,
-                    'form_id' => $request->form_id,
-                    'scheme_id' => $request->scheme_id,
-                    'steps' => $request->steps,
-                    'field_id' => $fieldId,
-                    'user_id' => '120',
-                ],
-                [
-                    'field_response' => $field_response,
-                ]
-            );
-
-            $results[] = [
-                'field_id' => $fieldId,
-                'status' => $record->wasRecentlyCreated ? 'inserted' : 'updated',
-            ];
-        }
-
-        return response()->json([
-            'uploaded_files' => $uploadedFiles,
-            'results' => $results,
-            'message' => 'Files uploaded and form submission saved successfully (or errors if any).',
-        ]);
-
+       // return response()->json('sdfdsfdsf');
+        // $token= $this->Login();
+        // //echo $token;
+        // //return response()->json($token,200);
         // if($token)
         // {
         //     $this->sendStatus($token,$inspection);
         // }else{
-        //   return response()->json("Invalid Credentials",401)
-        //}
-        //$url = "https://grants-msje.gov.in/dbtbharatws/rest/ngohome/v1/auth";
-        //$acknowledgement_number='KA/KA/00039933/SC/04-25/72127';
-        // $inspection = InspectionDetail::where('acknowledgement_number', $acknowledgement_number)->with(['proposal:acknowledgement_number,scheme_project_name,process_id,form_type,financial_year'])->first();
-        // $postData = [
-        //     'pfrId'         => $inspection->inspection_id,
-        //     'Ispfrdrafted'  => $inspection->status ==2 ?false:true,
-        //     'boUserId'      => $inspection->created_by,
-        //     'filleddate'     => Carbon::parse($inspection->created_at)->format('Y-m-d'),
-        //     'ackNumber'     => $inspection->acknowledgement_number,
-        //     'boProcessid'   => $inspection->proposal->process_id ?? null,
-        //     'schemeName'    => $inspection->proposal->form_type ?? null,
-        //     'financialyear' => $inspection->proposal->financial_year ?? null,
-        // ];
-        // return response()->json($postData,200);
-        // $ch = curl_init($url);
-        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_POST, true);
-        // curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
-        // if ($token) {
-        //     curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        //         "Authorization: Bearer $token",
-        //         "Content-Type: application/json"
-        //     ]);
-        // }
-        // $response = curl_exec($ch);
-        // $error = curl_error($ch);
-        // curl_close($ch);
-        // if ($error) {
-        //     echo "cURL Error: " . $error;
-        // } else {
-        //     echo "Response: " . $response; 
+        //   return response()->json("Invalid Credentials",401);
         // }
     }
     private function Login()
     {
         $client = new Client();
-        $url = 'https://grants-msje.gov.in/dbtbharatws/rest/ngohome/v1/auth';
         $data = [
-            'username' => 'ngosje.src',
-            'password' => 'U3@Ngo%sR634'
+            'username' => 'ngosje.pmuirinspection',
+            'password' => 'U6@Ngo%sN6^'
         ];
 
         try {
-            $response = $client->post($url, [
+            $response = $client->post($this->eanudannUrl . '/auth', [
                 'json' => $data,
                 'headers' => [
                     'Content-Type' => 'application/json'
@@ -501,30 +387,138 @@ class ApiController extends Controller
     {
         $inspection = InspectionDetail::where('acknowledgement_number', $inspection->acknowledgement_number)->with(['proposal:acknowledgement_number,scheme_project_name,process_id,form_type,financial_year'])->first();
         $postData = [
-            'pfrId'         => $inspection->inspection_id,
-            'Ispfrdrafted'  => $inspection->status == 2 ? false : true,
-            'boUserId'      => $inspection->created_by,
-            'filleddate'     => Carbon::parse($inspection->created_at)->format('Y-m-d'),
-            'ackNumber'     => $inspection->acknowledgement_number,
-            'boProcessid'   => $inspection->proposal->process_id ?? null,
-            'schemeName'    => $inspection->proposal->form_type ?? null,
-            'financialyear' => $inspection->proposal->financial_year ?? null,
+            'schemeName' => $inspection->proposal->form_type ?? null,
+            'appCode'    => '5',
+            'apiKey'     => 'U6@nG0&uM7U4@Nz8^eN0',
+            'pfrData'    => [
+                'pfrInspectionId' => (string) $inspection->inspection_id,
+                'ispfrDrafted'    => $inspection->status == 2 ? 0 : 1,
+                'boUserId'        => $inspection->created_by,
+                'ackNumber'       => $inspection->acknowledgement_number,
+                'boProcessId'     => ($inspection->proposal->process_id ?? ''),
+                'filledDate'      => Carbon::parse($inspection->created_at)->format('Y-m-d'),
+                'financialYear'   => $inspection->proposal->financial_year ?? null,
+            ]
         ];
-        return response()->json($postData, 200);
+        ///return response()->json($postData, 200);
         $client = new Client();
         try {
-            $response = $client->post('https://example.com/api/send-status', [
+            $response = $client->post($this->eanudannUrl . '/ir/statusupdate', [
                 'headers' => [
-                    'Content-Type'  => 'application/json',
+                    'Content-Type'  => 'application/json',  
                     ...(isset($token) ? ['Authorization' => "Bearer $token"] : []),
                 ],
                 'json' => $postData,
             ]);
             $body = $response->getBody()->getContents();
             $data = json_decode($body, true);
-            echo "Response: " . $data;
+            return $data;
         } catch (\GuzzleHttp\Exception\RequestException $e) {
-            echo "Request failed: " . $e->getMessage();
+            Log::error('Status update failed', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ]);
+            return [
+                'authorization' => 'Fail',
+                'error' => $e->getMessage()
+            ];
         }
+    }
+    // public function proposalInspection(Request $request)
+    // {
+    //     $providedKey = $request->header('X-Inspection-Secret');
+    //     $expectedKey = env('INSPECTION_SECRET_KEY');
+
+    //     if ($providedKey !== $expectedKey) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Unauthorized: Invalid secret key.',
+    //         ], 403);
+    //     }
+    //     $request->validate([
+    //         'email' => 'required|email|exists:users,email',
+    //         'password' => 'required|string|min:6',
+    //     ]);
+    //     $credentials = $request->only('email', 'password');
+    //     if (!$token = JWTAuth::attempt($credentials)) {
+    //         return response()->json([
+    //             'status' => false,
+    //             'message' => 'Invalid Email or Password',
+    //         ], 401);
+    //     }
+
+    //     return response()->json([
+    //         'status' => true,
+    //         'message' => 'Login successful via Email',
+    //         'token' => $token
+    //     ]);
+    // }
+    // public function proposalInspectionReport(Request $request)
+    // {
+    //     $request->validate([
+    //         'acknowledgement_number' => 'required|string|exists:inspection_details,acknowledgement_number',
+    //     ]);
+    //     $inspectionData=InspectionDetail::where('acknowledgement_number',$request->acknowledgement_number)->get();
+    //     if ($inspectionData->isEmpty()) {
+    //         return response()->json([
+    //             'success' => false,
+    //             'message' => 'No inspection details found for the given acknowledgement number.'
+    //         ], 404);
+    //     }
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $inspectionData
+    //     ],200);
+    // }
+    public function proposalInspectionData(Request $request)
+    {
+        try {
+            $submissions = FormSubmission::select(
+                'form_submissions.acknowledgement_number',
+                'form_formfield.column_name',
+                'form_submissions.field_response'
+            )
+            ->leftJoin('form_formfield', function ($join) {
+                $join->on('form_submissions.field_id', '=', 'form_formfield.formfield_id')
+                    ->on('form_submissions.form_id', '=', 'form_formfield.form_id');
+            })
+            ->join('inspection_details', 'form_submissions.inspection_id', '=', 'inspection_details.inspection_id')
+            ->where('inspection_details.pfrId', $request->pfr_id)
+            ->get()
+            ->groupBy('acknowledgement_number');
+
+            if ($submissions->isEmpty()) {
+                return response()->json([
+                    'data' => null,
+                    'message' => 'No inspection found for the given PFR ID.'
+                ], 404);
+            }
+
+            $firstAckNumber = $submissions->keys()->first();
+            $firstGroup = $submissions->first()->map(function ($item) {
+                $decoded = json_decode($item->field_response, true);
+                return [
+                    'column_name'    => $item->column_name,
+                    'field_response' => is_array($decoded) ? $decoded : $item->field_response,
+                ];
+            });
+
+            return response()->json([
+                'data' => [
+                    'acknowledgement_number' => $firstAckNumber,
+                    'data' => $firstGroup,
+                ],
+                'message' => 'Data retrieved successfully.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to get form submissions data: ' . $e->getMessage());
+            return response()->json([
+                'data' => null,
+                'message' => 'Failed to retrieve Inspection Data.'
+            ], 500);
+        }
+
     }
 }

@@ -39,4 +39,6 @@ Route::middleware('jwt')->group(function () {
     Route::post('/submissionData', [AuthController::class, 'submissionData']);
 });
 
-Route::post('/cronData', [AuthController::class, 'cronData'])->middleware('ip.restrict');;
+Route::post('/inspection-login', [ApiController::class, 'proposalInspection'])->middleware('ip.restrict');
+Route::post('/proposal-inspection-report', [ApiController::class, 'proposalInspectionReport'])->middleware('ip.restrict');
+Route::post('/proposal-inspection-data', [ApiController::class, 'proposalInspectionData']);
