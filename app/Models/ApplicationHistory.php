@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class ApplicationHistory extends Model
+{
+    protected $fillable = ['user_id','window_id','application_number','name','email','fathername', 'steps', 'application_status',
+        'submit_date'
+    ];
+}
