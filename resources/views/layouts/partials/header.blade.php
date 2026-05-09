@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>National Overseas Scholarshippppp | @yield('title')</title>
+    <title>National Overseas Scholarship | @yield('title')</title>
     <link rel="icon" type="image/png" href="{{ asset('images/NHAA-LOGO.png') }}" />
     <link rel="stylesheet" href="{{ asset('css/style.css') }}" />
     <link rel="stylesheet" href="{{ asset('css/responsive.css') }}" />
