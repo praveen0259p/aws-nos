@@ -75,7 +75,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-xl-2 col-lg-3 col-md-3">
-                <h2 class="d-flex gap-2 align-items-center fw-bold text-blue mb-0">Announcements
+                <h2 class="d-flex gap-2 align-items-center fw-bold text-blue mb-0">Announcementsssss
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25"
                         fill="none">
                         <mask id="mask0_5630_196823" maskUnits="userSpaceOnUse" x="0" y="0" width="25"
