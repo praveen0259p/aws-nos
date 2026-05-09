@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
     }
     public function boot(): void
     {
-        // Define the gateeeee
+        // Define the gateeeee2234324
         Gate::define('has-permission', function ($user, $module_id, $action) {
             $permission = UserModuleAccess::where('user_id', $user->id)
                 ->where('module_id', $module_id)
