@@ -7,6 +7,7 @@ use App\Models\Module;
 use App\Models\Application;
 use App\Models\ApplicationHistory;
 use App\Models\UserModuleAccess;
+use App\Models\Form;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -135,5 +136,17 @@ class BackendController extends Controller
             'success' => true,
             'data' => $request->only('name', 'email')
         ]);
+    }
+    public function createForms(Request $request)
+    {
+        return view('backend.forms');
+    }
+    public function show(Form $form)
+    {
+        $formJson = json_decode($form->form_json); 
+        return view('backend.show', compact('form','formJson'));
+    }
+    public function save(Request $request){
+        dd($request->all());
     }
 }

@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\DB;
 use App\Models\UserModuleAccess;
+use Maatwebsite\Excel\Facades\Excel;
 class AppServiceProvider extends ServiceProvider
 {
     

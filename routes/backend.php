@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BackendController;
 use Illuminate\Http\Request;
 Route::get('/dashboard', [BackendController::class, 'dashboard'])->name('dashboard');
-// move this route to backend after testing
+Route::get('/forms', [BackendController::class, 'createForms'])->name('forms');
+Route::get('forms/{form}', [BackendController::class, 'show'])->name('forms.show');
+Route::post('save', [BackendController::class, 'save'])->name('forms.save');
+
 Route::middleware(['applicationWindow'])->group(function () {
     Route::get('/application', [BackendController::class, 'application'])->name('application');
     Route::post('/register/step/1',[BackendController::class, 'step1'])->name('submit.step1');
