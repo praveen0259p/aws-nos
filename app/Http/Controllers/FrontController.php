@@ -8,25 +8,28 @@ use App\Models\Minister;
 use App\Models\User;
 use App\Models\Document;
 use App\Models\MenuItem;
-use App\Models\LoginHistory;
-use App\Models\Content;
 use App\Notifications\WelcomeUser;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
-use Jenssegers\Agent\Agent;
-use Illuminate\Support\Facades\Route;
+
 class FrontController extends Controller
 {
     public function index()
     {
+        // $menu=MenuItem::whereNull('parent_id')
+        // ->where('active', 1)
+        // ->orderBy('order_index')
+        // ->with(['asset', 'childrenRecursive'])
+        // ->get();
+        // dd($menu);
         $activeBanners = Banner::with('asset')->where('active', 1)->orderBy('priority_ordering', 'asc')->get();
         $activeMinisters = Minister::with('asset')->where('active', 1)->orderBy('priority_ordering', 'asc')->get();
         return view('index', compact('activeBanners', 'activeMinisters'));
     }
 
-    public function showRegistrationForm()
+    public function showRegistrationForm($year, $round)
     {
-        return view('register');
+        return view('register', compact('year', 'round'));
     }
     public function getDistricts($stateId)
     {
@@ -35,13 +38,17 @@ class FrontController extends Controller
     public function register(Request $request)
     {
         //dd($request->all());
+        $activePortal = getActiveRegistrationButton();
+        if (!$activePortal || $activePortal->year != $request->year || $activePortal->round != $request->round) {
+            return redirect()->back()->with('error', 'Registration is not open for the selected year or round.');
+        }
         $validatedData = $request->validate([
             'firstname'  => 'required|alpha|max:50',
             'middlename' => 'nullable|alpha|max:50',
             'lastname'   => 'required|alpha|max:50',
-            'father_name' => ['required', 'regex:/^[A-Za-z ]+$/', 'max:50'],
+            'father_name'   => 'required|alpha|max:50',
             'gender'   => 'required|in:' . implode(',', array_keys(genderOptions())),
-            'dob' => 'required|date|before:' . now()->subYears(18)->format('Y-m-d'),
+            'dob'        => 'required|date|before:today',
             'mobile'     => 'required|numeric|digits:10',
             'email'      => 'required|email|unique:users,email',
             'category'   => 'required|in:' . implode(',', array_keys(categoryOptions())),
@@ -49,17 +56,18 @@ class FrontController extends Controller
             'district'   => 'required|exists:districts,DistrictCode',
             'password'   => 'required|string',
             //'captcha'    => 'required',
-        ], [
-            'firstname.alpha' => 'Firstname can only contain letters.',
-            'middlename.alpha' => 'Middlename can only contain letters.',
-            'lastname.alpha' => 'Lastname can only contain letters.',
-            'father_name.regex' => 'Father name can only contain letters and spaces.',
-            'dob.before' => 'You must be at least 18 years old.',
-            'mobile.digits' => 'Mobile number must be exactly 10 digits.',
         ]);
-        $validatedData['role_id'] = 2;
+        $validatedData['role_id'] = 1;
+        $validatedData['year'] = $request->year;
+        $validatedData['round'] = $request->round;
         $user = User::create($validatedData);
-        User::where('id', $user->id)->update(['regno' => generateRegistrationNumber($user->id)]);
+        $insertedUserId = $user->id;
+        $regnumber = str_pad($insertedUserId, 4, '0', STR_PAD_LEFT);
+        $currentYear = date('Y');
+        $nextYearLast2 = date('y', strtotime('+1 year'));
+        $datePart = $currentYear . $nextYearLast2;
+        $newregno = 'NOS' . $regnumber . $datePart;
+        User::where('id', $insertedUserId)->update(['regno' => $newregno]);
         $user->notify(new WelcomeUser());
         return redirect()->route('login')->with('success', 'Registration successful!Please Activate Your Link');
     }
@@ -85,20 +93,8 @@ class FrontController extends Controller
         $user = User::where(['email' => $request->email, 'active' => 1])->first();
         // echo $request->password;
         // dd($user);
-        $agent = new Agent();
         if ($user && $request->password == $user->password) {
             Auth::login($user);
-            LoginHistory::create([
-                'user_id'    => Auth::id(),
-                'regno'      => Auth::user()->regno ?? null,
-                'ip_address' => request()->ip(),
-                'user_agent' => request()->userAgent(),
-                'device'     => $agent->device(),
-                'browser'    => $agent->browser(),
-                'platform'   => $agent->platform(),
-                'is_success' => true,
-                'logged_in_at' => now(),
-            ]);
             $request->session()->regenerate();
             return redirect()->intended('/dashboard')->with('success', 'Logged in successfully!');
         }
@@ -106,20 +102,16 @@ class FrontController extends Controller
     }
     public function logout(Request $request)
     {
-        LoginHistory::where('user_id', Auth::id())
-        ->whereNull('logged_out_at')
-        ->latest()
-        ->update([
-            'logged_out_at' => now()
-        ]);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login')->with('success', 'Logged out successfully!');
     }
-    public function document()
+    public function schemeGuideline(Request $request)
     {
-        return view('document');
+        // $documents=Document::where(['parent_menu_id'=>2,'active'=>1])->with('asset')->get();
+        // return view('guidelines',compact('documents'));
+        return view('guidelines');
     }
     public function yajraData(Request $request)
     {
@@ -129,7 +121,7 @@ class FrontController extends Controller
         return DataTables::of($query)
             ->addIndexColumn()
             ->addColumn('title', fn($doc) => $doc->title)
-            ->addColumn('published_date', fn($doc) => $doc->created_at->format('d-m-Y'))
+            ->addColumn('published_date', fn($doc) => $doc->created_at->format('d.m.Y'))
             ->addColumn('size', fn($doc) => optional($doc->asset)->size_mb . ' MB')
             ->addColumn('actions', fn($doc) => '<a href="' . asset($doc->asset?->url) . '" target="_blank" class="view-btn"><i class="bi bi-eye me-1" aria-hidden="true"></i> View</a>')
             ->filter(function ($query) use ($request) {
@@ -143,13 +135,16 @@ class FrontController extends Controller
             ->rawColumns(['actions'])
             ->toJson();
     }
-    public function content(){
-        
-        $menu=Content::where(['slug'=>Route::currentRouteName()])->first();
-        return view('content',compact('menu'));
-    }
-    public function sitemap()
+    public function results()
     {
-        return view('sitemap');
+        // $results = Document::where(['parent_menu_id' => 20, 'active' => 1])->with('asset')->get();
+        // return view('results', compact('results'));
+        return view('guidelines');
+    }
+    public function forms()
+    {
+        // $forms = Document::where(['parent_menu_id' => 19, 'active' => 1])->with('asset')->get();
+        // return view('forms', compact('forms'));
+        return view('guidelines');
     }
 }

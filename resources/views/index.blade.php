@@ -141,8 +141,8 @@
     </div>
 </section>
 <!-- About Section -->
-<section  class="about-ministry-section bg-white py-5">
-    <div id="mainContent" class="container-fluid">
+<section class="about-ministry-section bg-white py-5">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-xl-7 col-lg-7">
                 <div class="d-flex align-items-center gap-2 mb-3">

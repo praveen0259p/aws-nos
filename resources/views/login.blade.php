@@ -34,8 +34,7 @@
                                     placeholder="Enter your email"
                                     label="Login Id"
                                     icon="bi-envelope"
-                                    autocomplete="new-email"
-                                    :required="true" />
+                                    autocomplete="new-email" />
                             </div>
                             <div class="col-lg-12 mb-3">
                                 <x-text-input
@@ -44,8 +43,7 @@
                                     placeholder="Enter your password"
                                     label="Password"
                                     icon="bi-lock"
-                                    autocomplete="new-password" 
-                                    :required="true"/>
+                                    autocomplete="new-password" />
                             </div>
                         </div>
                         <div class="row align-items-center">
@@ -97,9 +95,9 @@
                 password: {
                     required: true,
                 },
-                // 'g-recaptcha-response': {
-                //     captchaRequired: true
-                // }
+                'g-recaptcha-response': {
+                    captchaRequired: true
+                }
             },
             messages: {
                 email: {

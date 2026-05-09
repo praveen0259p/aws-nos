@@ -15,7 +15,7 @@
                         </a>
                     </li>
                     <li>
-                        <a data-bs-toggle="tooltip" data-bs-placement="bottom"
+                        <a href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="bottom"
                             aria-label="Translate this Page" aria-expanded="true" title="Translate"
                             class="bhashini-plugin-container">
                             <svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

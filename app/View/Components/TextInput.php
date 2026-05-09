@@ -14,10 +14,9 @@ class TextInput extends Component
     public $type;
     public $minlength;
     public $maxlength;
-    public $required;
 
     public function __construct($name, $value = '', $placeholder = '', $label = '', $icon = '',$type='',$minlength = null, 
-        $maxlength = null,$required=false)
+        $maxlength = null)
     {
         $this->name = $name;
         $this->value = $value;
@@ -27,7 +26,6 @@ class TextInput extends Component
         $this->type = $type;
         $this->minlength = $minlength;
         $this->maxlength = $maxlength;
-        $this->required = $required;
     }
 
     public function render()

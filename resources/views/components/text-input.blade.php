@@ -1,8 +1,5 @@
 <label for="{{ $name }}" class="form-label fw-bold mb-2">
-    {{ $label }} 
-    @if($required)
-        <sup class="text-danger" aria-hidden="true">*</sup>
-    @endif
+    {{ $label }}<sup class="text-danger" aria-hidden="true">*</sup>
 </label>
 <div class="input-group rounded-1">
     @if($icon)

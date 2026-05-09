@@ -8,8 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {   use Notifiable;
     protected $fillable = [
-        'role_id','regno','firstname', 'middlename', 'lastname',
-        'father_name','gender','dob', 'mobile', 'email', 'category',
+        'role_id','year','round','firstname', 'middlename', 'lastname',
+        'dob', 'mobile', 'email', 'category',
         'state', 'district', 'password','email_verified_at','active',
     ];
 }

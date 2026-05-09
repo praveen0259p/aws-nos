@@ -1,258 +1,331 @@
 @extends('layouts.app')
 @section('title', 'Register')
-
+@section('content')
 @push('styles')
 <style>
-    .stepper {
-        position: relative;
-    }
+        /* Vertical Timeline Stepper */
+        .stepper {
+            position: relative;
+        }
+        .stepper::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            bottom: 40px;
+            left: 20px;
+            width: 4px;
+            background: #e9ecef;
+            z-index: 0;
+        }
+        .step {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 2rem;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #e9ecef;
+            color: #6c757d;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        .step.active .step-number {
+            background: #0d6efd;
+            color: white;
+        }
+        .step.completed .step-number {
+            background: #198754;
+            color: white;
+        }
+        .step.completed .step-number::after {
+            content: '✓';
+        }
 
-    .stepper::before {
-        content: '';
-        position: absolute;
-        top: 40px;
-        bottom: 40px;
-        left: 20px;
-        width: 4px;
-        background: #e9ecef;
-    }
+        /* Form Steps */
+        .form-step {
+            display: none;
+        }
+        .form-step.active {
+            display: block;
+        }
+    </style>
+    @endpush
+<x-bread-crumbs
+    current-page="{{ Route::currentRouteName() }}"
+    :menu-items="[
+        ['label' => 'Reports', 'url' => '#', 'active' => 'active'],
+        ['label' => 'Orders and Notices', 'url' => '#'],
+        ['label' => 'Publications', 'url' => '#']
+    ]" />
+    <div class="container py-5">
+    <h2 class="text-center mb-5">Project Timeline</h2>
 
-    .step {
-        margin-bottom: 2rem;
-    }
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="row">
+                        <!-- Vertical Stepper -->
+                        <div class="col-md-3">
+                            <div class="stepper">
+                                <div class="step active completed">
+                                    <div class="d-flex align-items-center">
+                                        <div class="step-number">1</div>
+                                        <div>Personal Info</div>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="d-flex align-items-center">
+                                        <div class="step-number">2</div>
+                                        <div>Address</div>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="d-flex align-items-center">
+                                        <div class="step-number">3</div>
+                                        <div>Payment</div>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="d-flex align-items-center">
+                                        <div class="step-number">4</div>
+                                        <div>Confirmation</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-    .step-number {
-        width: 40px;
-        height: 40px;
-        background: #e9ecef;
-        color: #6c757d;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
+                        <!-- Form Content -->
+                        <div class="col-md-9">
+                            <form id="multiStepForm">
+                                <!-- Step 1 -->
+                                <div class="form-step active">
+                                    <h4>Step 1: Personal Information</h4>
+                                    <div class="mb-3">
+                                        <label class="form-label">Name</label>
+                                        <input type="text" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" required>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="button" class="btn btn-primary next-btn">Next</button>
+                                    </div>
+                                </div>
 
-    .step.active .step-number {
-        background: #0d6efd;
-        color: #fff;
-    }
+                                <!-- Step 2 -->
+                                <div class="form-step">
+                                    <h4>Step 2: Address</h4>
+                                    <div class="mb-3">
+                                        <label class="form-label">Street</label>
+                                        <input type="text" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">City</label>
+                                        <input type="text" class="form-control" required>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-secondary prev-btn">Previous</button>
+                                        <button type="button" class="btn btn-primary next-btn">Next</button>
+                                    </div>
+                                </div>
 
-    .step.completed .step-number {
-        background: #198754;
-        color: #fff;
-    }
+                                <!-- Step 3 -->
+                                <div class="form-step">
+                                    <h4>Step 3: Payment Details</h4>
+                                    <div class="mb-3">
+                                        <label class="form-label">Card Number</label>
+                                        <input type="text" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Expiry</label>
+                                        <input type="text" class="form-control" placeholder="MM/YY" required>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-secondary prev-btn">Previous</button>
+                                        <button type="button" class="btn btn-primary next-btn">Next</button>
+                                    </div>
+                                </div>
 
-    .form-box {
-        display: none;
-    }
-
-    .form-box.active {
-        display: block;
-    }
-</style>
-@endpush
-
-@section('content')
-<div class="container py-5">
-    <h2 class="text-center mb-5">Multi Step Form</h2>
-
-    <div class="row">
-        <!-- Stepper -->
-        <div class="col-md-3">
-            <div class="stepper">
-                <div class="step {{ $activeStep >= 1 ? 'active completed' : '' }}">
-                    <div class="d-flex">
-                        <div class="step-number">1</div>
-                        <div class="ms-2">Personal</div>
-                    </div>
-                </div>
-                <div class="step {{ $activeStep >= 2 ? 'active' : '' }}">
-                    <div class="d-flex">
-                        <div class="step-number">2</div>
-                        <div class="ms-2">Address</div>
-                    </div>
-                </div>
-                <div class="step {{ $activeStep >= 3 ? 'active' : '' }}">
-                    <div class="d-flex">
-                        <div class="step-number">3</div>
-                        <div class="ms-2">Payment</div>
+                                <!-- Step 4 -->
+                                <div class="form-step">
+                                    <h4>Step 4: Confirmation</h4>
+                                    <p>Review your information and submit.</p>
+                                    <div class="alert alert-info">
+                                        All previous steps will be summarized here (you can populate dynamically with JS).
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <button type="button" class="btn btn-secondary prev-btn">Previous</button>
+                                        <button type="submit" class="btn btn-success">Submit Form</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Forms -->
-        <div class="col-md-9">
-
-            <!-- STEP 1 -->
-            <form id="step1Form" class="form-box {{ $activeStep == 1 ? 'active' : '' }}">
-                @csrf
-                <h4>Step 1: Personal Info</h4>
-                <div class="mb-3">
-                    <label>Name</label>
-                    <input type="text" name="name" value="{{ $application->name ?? '' }}" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label>Email</label>
-                    <input type="email" name="email" value="{{ $application->email ?? '' }}" class="form-control">
-                </div>
-                <button type="submit" class="btn btn-primary">Draft & Next</button>
-            </form>
-
-            <!-- STEP 2 -->
-            <form id="step2Form" class="form-box {{ $activeStep == 2 ? 'active' : '' }}">
-                @csrf
-                <h4>Step 2: Address</h4>
-
-                <div class="mb-3"> 
-                    <label>Street</label>
-                    <input type="text" name="street" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label>City</label>
-                    <input type="text" name="city" class="form-control">
-                </div>
-
-                <button type="button" class="btn btn-secondary prev">Previous</button>
-                <button class="btn btn-primary">Draft & Next</button>
-            </form>
-
-            <!-- STEP 3 -->
-            <form id="step3Form" class="form-box {{ $activeStep == 3 ? 'active' : '' }}">
-                @csrf
-                <h4>Step 3: Payment</h4>
-
-                <div class="mb-3">
-                    <label>Card Number</label>
-                    <input type="text" name="card_number" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                    <label>Expiry</label>
-                    <input type="text" name="expiry" class="form-control">
-                </div>
-
-                <button type="button" class="btn btn-secondary prev">Previous</button>
-                <button class="btn btn-success">Finish</button>
-            </form>
-
         </div>
     </div>
 </div>
 @endsection
 @push('scripts')
 <script>
-    $(document).ready(function() {
-        const steps = [{
-                form: '#step1Form',
-                next: '#step2Form',
-                rules: {
-                    name: {
-                        required: true,
-                        minlength: 3
-                    },
-                    email: {
-                        required: true,
-                        email: true
-                    }
-                },
-                messages: {
-                    name: "Please enter your Name.",
-                    email: "Please enter a valid email address."
-                }
-            },
-            {
-                form: '#step2Form',
-                next: '#step3Form',
-                rules: {
-                    street: {
-                        required: true
-                    },
-                    city: {
-                        required: true
-                    }
-                },
-                messages: {
-                    street: "Street is required",
-                    city: "City is required"
-                }
-            },
-            {
-                form: '#step3Form',
-                next: null,
-                rules: {
-                    card_number: {
-                        required: true,
-                        creditcard: true
-                    },
-                    expiry: {
-                        required: true
-                    }
-                },
-                messages: {
-                    card_number: "Invalid card number",
-                    expiry: "Expiry required"
-                }
-            }
-        ];
+$(document).ready(function() {
+    const $form = $('#multiStepForm');
+    const $steps = $('.form-step');
+    const $stepItems = $('.step');
+    const $summary = $('#summary');
+    let currentStep = 0;
 
-        steps.forEach((step, index) => {
-            $(step.form).validate({
-                //rules: step.rules,
-                //messages: step.messages,
-                errorClass: 'text-danger',
-                submitHandler: function(form) {
-                    const stepIndex = index + 1;
-                    let formData = $(form).serializeArray();
-                    // formData.push({ name: 'year', value: activePortal.year });
-                    // formData.push({ name: 'round', value: activePortal.round });
-                    $(form).find('.text-danger.backend-error').remove();
-                    $.ajax({
-                        url: "{{ url('/register/step') }}/" + stepIndex,
-                        method: 'POST',
-                        data: formData,
-                        success: function(response) {
-                            $(form).removeClass('active');
-                            if (step.next) {
-                                $(step.next).addClass('active');
-                                $('.step').eq(index).addClass('completed');
-                                $('.step').eq(index + 1).addClass('active');
-                            } else {
-                                alert('All steps completed successfully!');
-                            }
-                        },
-                        error: function(xhr) {
-                            if (xhr.status === 422) {
-                                const errors = xhr.responseJSON.errors;
-                                for (let field in errors) {
-                                    let $input = $(form).find('[name="' + field + '"]');
-                                    $input.after('<div class="text-danger backend-error">' + errors[field][0] + '</div>');
-                                }
-                            }
-                        }
-                    });
-                }
-            });
-        });
-
-        // PREVIOUS BUTTON
-        $('.prev').on('click', function() {
-            const currentForm = $(this).closest('form');
-            const currentIndex = steps.findIndex(s => s.form === '#' + currentForm.attr('id'));
-            if (currentIndex > 0) {
-                currentForm.removeClass('active');
-                $(steps[currentIndex - 1].form).addClass('active');
-
-                // Update stepper
-                $('.step').removeClass('active');
-                $('.step').eq(currentIndex - 1).addClass('active');
-            }
-        });
-
-
+    // Initialize jQuery Validation
+    $form.validate({
+        errorElement: 'small',
+        errorClass: 'error',
+        highlight: function(element) {
+            $(element).addClass('is-invalid');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid');
+        },
+        errorPlacement: function(error, element) {
+            error.insertAfter(element);
+        },
+        rules: {
+            full_name: { required: true, minlength: 3 },
+            email: { required: true, email: true },
+            phone: { phoneUS: true },
+            street: "required",
+            city: "required",
+            zip: { required: true, digits: true, minlength: 5 },
+            card_number: { required: true, creditcard: true },
+            expiry: { required: true },
+            cvv: { required: true, digits: true, minlength: 3, maxlength: 4 }
+        },
+        messages: {
+            full_name: "Please enter your full name (at least 3 characters)",
+            email: "Please enter a valid email address",
+            card_number: "Please enter a valid credit card number"
+        }
     });
-</script>
 
+    // Function to generate and display summary
+    function updateSummary() {
+        const data = {};
+
+        // Collect all named inputs from the entire form
+        $form.find('input[name], select[name], textarea[name]').each(function() {
+            const $field = $(this);
+            const name = $field.attr('name');
+            const value = $field.val().trim();
+
+            // Group by step or just collect all
+            if (value) {
+                data[name] = value;
+            }
+        });
+
+        // Build HTML summary
+        let summaryHTML = '<h5 class="mb-3">Review Your Information</h5><dl class="row">';
+
+        // Personal Info
+        if (data.full_name || data.email || data.phone) {
+            summaryHTML += '<dt class="col-sm-4">Full Name</dt><dd class="col-sm-8">' + (data.full_name || '—') + '</dd>';
+            summaryHTML += '<dt class="col-sm-4">Email</dt><dd class="col-sm-8">' + (data.email || '—') + '</dd>';
+            summaryHTML += '<dt class="col-sm-4">Phone</dt><dd class="col-sm-8">' + (data.phone || '—') + '</dd>';
+        }
+
+        // Address
+        if (data.street || data.city || data.zip) {
+            summaryHTML += '<dt class="col-sm-4">Street Address</dt><dd class="col-sm-8">' + (data.street || '—') + '</dd>';
+            summaryHTML += '<dt class="col-sm-4">City</dt><dd class="col-sm-8">' + (data.city || '—') + '</dd>';
+            summaryHTML += '<dt class="col-sm-4">ZIP Code</dt><dd class="col-sm-8">' + (data.zip || '—') + '</dd>';
+        }
+
+        // Payment (mask card number for security)
+        if (data.card_number) {
+            const maskedCard = '•••• •••• •••• ' + data.card_number.slice(-4);
+            summaryHTML += '<dt class="col-sm-4">Card Number</dt><dd class="col-sm-8">' + maskedCard + '</dd>';
+        }
+        if (data.expiry) {
+            summaryHTML += '<dt class="col-sm-4">Expiry</dt><dd class="col-sm-8">' + data.expiry + '</dd>';
+        }
+        if (data.cvv) {
+            summaryHTML += '<dt class="col-sm-4">CVV</dt><dd class="col-sm-8">•••</dd>';
+        }
+
+        summaryHTML += '</dl>';
+
+        // Add edit note
+        summaryHTML += '<p class="text-muted small">Go back to any step to make changes.</p>';
+
+        $summary.html(summaryHTML);
+    }
+
+    // Next button
+    $('.next-btn').on('click', function() {
+        let isValid = true;
+        $steps.eq(currentStep).find('input, select, textarea').each(function() {
+            if (!$(this).valid()) {
+                isValid = false;
+            }
+        });
+
+        if (isValid && currentStep < $steps.length - 1) {
+            $steps.eq(currentStep).removeClass('active');
+            currentStep++;
+            $steps.eq(currentStep).addClass('active');
+
+            // Update stepper
+            $stepItems.eq(currentStep - 1).addClass('completed');
+            $stepItems.eq(currentStep).addClass('active');
+
+            // If reaching the last step, update summary
+            if (currentStep === $steps.length - 1) {
+                updateSummary();
+            }
+        }
+    });
+
+    // Previous button
+    $('.prev-btn').on('click', function() {
+        if (currentStep > 0) {
+            $steps.eq(currentStep).removeClass('active');
+            currentStep--;
+            $steps.eq(currentStep).addClass('active');
+
+            $stepItems.eq(currentStep + 1).removeClass('active');
+            // Don't remove 'completed' if already done
+        }
+
+        // Update summary if user returns to Step 4 later
+        if (currentStep === $steps.length - 1) {
+            updateSummary();
+        }
+    });
+
+    // Form submit (optional: show final data in console or send via AJAX)
+    $form.on('submit', function(e) {
+        // e.preventDefault(); // Remove if you want real form post
+
+        if ($form.valid()) {
+            console.log('All Form Data:', $form.serializeArray());
+            alert('Form submitted successfully!\nCheck console for full data.');
+        } else {
+            e.preventDefault();
+            // Go back to first invalid step (optional enhancement)
+        }
+    });
+
+    // Initial: if starting on step 4 somehow, show summary
+    if (currentStep === $steps.length - 1) {
+        updateSummary();
+    }
+});
+</script>
 @endpush

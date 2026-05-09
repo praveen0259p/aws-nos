@@ -22,6 +22,8 @@
                     <form id="register-form" action="{{route('student.register')}}" method="post">
                         @csrf
                         <div class="row">
+                            <input type="hidden" name="year" value="{{ $year }}">
+                            <input type="hidden" name="round" value="{{ $round }}">
                             <div class="col-lg-6 mb-3">
                                 <x-text-input 
                                     name="firstname" 
@@ -30,7 +32,6 @@
                                     label="First Name" 
                                     icon="bi-person" 
                                     aria-autocomplete="off"
-                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -51,7 +52,6 @@
                                     label="Last Name" 
                                     icon="bi-person" 
                                     aria-autocomplete="off"
-                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -62,7 +62,6 @@
                                     label="Father Name" 
                                     icon="bi-person" 
                                     aria-autocomplete="off"
-                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -82,7 +81,6 @@
                                     label="Date of Birth" 
                                     icon="bi-calendar-event" 
                                     aria-autocomplete="off"
-                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -95,7 +93,6 @@
                                     aria-autocomplete="off"
                                     minlength="10"
                                     maxlength="10"
-                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -106,7 +103,6 @@
                                     label="Email" 
                                     icon="bi-envelope" 
                                     autocomplete="new-email"
-                                    :required="true"
                                 /> 
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -143,7 +139,6 @@
                                     label="Password" 
                                     icon="bi-eye-fill" 
                                     autocomplete="new-password"
-                                    :required="true"
                                 /> 
                             </div>
                         </div>

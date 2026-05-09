@@ -31,7 +31,7 @@
             </div>
             <div class="offcanvas-body">
                 <ul class="navbar-nav mb-2 mb-lg-0">
-                    @foreach (getMenu()->where('is_main', 1) as $menu)
+                    @foreach (getMenu() as $menu)
                         @if ($menu->childrenRecursive->isEmpty())
                             <li class="nav-item">
                                 <a href="{{ url($menu->url) }}"
@@ -66,9 +66,9 @@
                         @endauth
                     </li>
                     @php $activePortal = getActiveRegistrationButton(); @endphp
-                    @if($activePortal->isSubmissionOpen())
+                    @if($activePortal)
                         <li class="nav-item d-flex align-items-center">
-                            <a href="{{ route('register') }}"
+                            <a href="{{ route('register', [$activePortal->year, $activePortal->round]) }}"
                             class="loginbtn position-relative me-2">
                                 Register
                             </a>
