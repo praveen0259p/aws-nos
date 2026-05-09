@@ -7,7 +7,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use Exception;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-
+use App\Models\User;
 class JwtMiddleware
 {
     /**
@@ -18,11 +18,19 @@ class JwtMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         try {
-            JWTAuth::parseToken()->authenticate();
+            $token = JWTAuth::getToken()?->get();
+            if (!$token) {
+                return response()->json(['error' => 'Token not provided'], 401);
+            }
+            $user = JWTAuth::parseToken()->authenticate();
+            if (!$user || $token !== $user->token) {
+                return response()->json(['error' => 'Unauthorized or token mismatch'], 401);
+            }
+            return $next($request);
+
         } catch (Exception $e) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-        return $next($request);
     }
-    }
+}
 
