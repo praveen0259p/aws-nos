@@ -46,6 +46,6 @@ jobs:
             php artisan view:cache
 
             sudo chmod -R 775 storage bootstrap/cache
-            
+
             sudo systemctl restart httpd
-            sudo systemctl restart php8.2-fpmss
+            sudo systemctl restart php-fpm
