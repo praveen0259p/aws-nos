@@ -32,7 +32,7 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            cd /var/www/aws-nos
+            cd /var/www/html/aws-nos
 
             git pull origin main
 
@@ -46,6 +46,6 @@ jobs:
             php artisan view:cache
 
             sudo chmod -R 775 storage bootstrap/cache
-
+            
             sudo systemctl restart httpd
-            sudo systemctl restart php-fpm
+            sudo systemctl restart php8.2-fpmss
