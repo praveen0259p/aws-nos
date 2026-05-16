@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Asset extends Model
 {
+    protected $fillable = ['url','size'];
     public function documents()
     {
         return $this->hasMany(Document::class, 'assets_id', 'id');

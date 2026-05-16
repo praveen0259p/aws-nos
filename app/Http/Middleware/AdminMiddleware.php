@@ -11,10 +11,8 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check()) {
-            return $next($request);
-        }
-        return redirect()->route('login')->with('error', 'Please login to access this page.');
+        abort_if(! Auth::check(), 401, 'Unauthorized access');
+        return $next($request);
         //return redirect()->route('login')->with('error', 'You do not have admin access.');
     }
 }

@@ -12,9 +12,11 @@ class SelectInput extends Component
     public $options;
     public $selected;
     public $placeholder;
-    
+    public $required;
+    public $class;
 
-    public function __construct($name,$icon, $label = '', $options = [], $selected = '', $placeholder = 'Select an option')
+    public function __construct($name,$icon='', $label = '', $options = [], $selected = '',
+     $placeholder = 'Select an option',$required=true,$class=null)
     {
         $this->name = $name;
         $this->label = $label ?: ucfirst($name);
@@ -22,6 +24,8 @@ class SelectInput extends Component
         $this->selected = $selected;
         $this->placeholder = $placeholder;
         $this->icon = $icon;
+        $this->required = $required;
+        $this->class = $class;
     }
 
     public function render()

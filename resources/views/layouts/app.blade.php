@@ -9,6 +9,8 @@
 <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+<!-- BHASHINI Translation Plugin Script -->
+<script src="https://translation-plugin.bhashini.co.in/v3/website_translation_utility.js"></script>
 @stack('scripts')
 </body>
 </html>

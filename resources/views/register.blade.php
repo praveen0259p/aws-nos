@@ -22,8 +22,6 @@
                     <form id="register-form" action="{{route('student.register')}}" method="post">
                         @csrf
                         <div class="row">
-                            <input type="hidden" name="year" value="{{ $year }}">
-                            <input type="hidden" name="round" value="{{ $round }}">
                             <div class="col-lg-6 mb-3">
                                 <x-text-input 
                                     name="firstname" 
@@ -32,6 +30,7 @@
                                     label="First Name" 
                                     icon="bi-person" 
                                     aria-autocomplete="off"
+                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -52,6 +51,7 @@
                                     label="Last Name" 
                                     icon="bi-person" 
                                     aria-autocomplete="off"
+                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -62,6 +62,7 @@
                                     label="Father Name" 
                                     icon="bi-person" 
                                     aria-autocomplete="off"
+                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -81,6 +82,7 @@
                                     label="Date of Birth" 
                                     icon="bi-calendar-event" 
                                     aria-autocomplete="off"
+                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -93,6 +95,7 @@
                                     aria-autocomplete="off"
                                     minlength="10"
                                     maxlength="10"
+                                    :required="true"
                                 />
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -103,6 +106,7 @@
                                     label="Email" 
                                     icon="bi-envelope" 
                                     autocomplete="new-email"
+                                    :required="true"
                                 /> 
                             </div>
                             <div class="col-lg-6 mb-3">
@@ -139,6 +143,7 @@
                                     label="Password" 
                                     icon="bi-eye-fill" 
                                     autocomplete="new-password"
+                                    :required="true"
                                 /> 
                             </div>
                         </div>
@@ -173,24 +178,24 @@
 <script src="{{ asset('js/sha256.js') }}"></script>
 {!! NoCaptcha::renderJs() !!}
 <script>
-$(document).ready(function() {
+(()=>{
     $('#state').change(function() {
-    var stateId = $(this).val();
-    $('#district').html('<option>Loading...</option>');
-    if(stateId) {
-        $.get("{{ url('/districts') }}/"+stateId, function(data){
-            var options = '<option value="">Select District</option>';
-            data = Array.isArray(data) ? data : Object.entries(data);
-            console.warn(data);
-            data.forEach(function([code, name]){
-                options += `<option value="${code}">${name}</option>`;
+        var stateId = $(this).val();
+        $('#district').html('<option>Loading...</option>');
+        if(stateId) {
+            $.get("{{ url('/districts') }}/"+stateId, function(data){
+                var options = '<option value="">Select District</option>';
+                data = Array.isArray(data) ? data : Object.entries(data);
+                console.warn(data);
+                data.forEach(function([code, name]){
+                    options += `<option value="${code}">${name}</option>`;
+                });
+                $('#district').html(options);
             });
-            $('#district').html(options);
-        });
-    } else {
-        $('#district').html('<option value="">Select District</option>');
-    }
-});
+        } else {
+            $('#district').html('<option value="">Select District</option>');
+        }
+    });
     $("#register-form").validate({
         ignore: [],
         errorClass: 'text-danger',
@@ -331,6 +336,6 @@ $(document).ready(function() {
     jQuery.validator.addMethod("captchaRequired", function(value, element) {
         return grecaptcha.getResponse().length > 0;
     }, "Please complete the captcha.");
-});
+})();
 </script>
 @endpush

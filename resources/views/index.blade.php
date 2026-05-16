@@ -75,7 +75,7 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-xl-2 col-lg-3 col-md-3">
-                <h2 class="d-flex gap-2 align-items-center fw-bold text-blue mb-0">Announcementsssss
+                <h2 class="d-flex gap-2 align-items-center fw-bold text-blue mb-0">Announcements
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 25 25"
                         fill="none">
                         <mask id="mask0_5630_196823" maskUnits="userSpaceOnUse" x="0" y="0" width="25"
@@ -141,8 +141,8 @@
     </div>
 </section>
 <!-- About Section -->
-<section class="about-ministry-section bg-white py-5">
-    <div class="container-fluid">
+<section  class="about-ministry-section bg-white py-5">
+    <div id="mainContent" class="container-fluid">
         <div class="row">
             <div class="col-xl-7 col-lg-7">
                 <div class="d-flex align-items-center gap-2 mb-3">
@@ -202,17 +202,21 @@
             </div>
             <div class="col-xl-5 col-lg-5 mt-4 mt-lg-0">
                 <div class="row g-3 justify-content-center">
-                    @foreach($activeMinisters as $minister)
-                        <div class="col-lg-4 col-md-6 mb-3">
-                            <div class="minister-card text-center">
-                                <img src="{{ asset($minister->asset->url) }}" 
-                                    class="img-fluid minister-img" 
-                                    alt="{{ $minister->name }}">
-                                <h4 class="mt-3 mb-1 fw-semibold">{{ $minister->name }}</h4>
-                                <p class="text-black m-0">{{ $minister->designation }}</p>
+                    @if($activeMinisters->isNotEmpty())
+                        @foreach($activeMinisters as $minister)
+                            <div class="col-lg-4 col-md-6 mb-3">
+                                <div class="minister-card text-center">
+                                    @if(optional($minister->asset)->url)
+                                        <img src="{{ asset($minister->asset->url) }}" 
+                                            class="img-fluid minister-img" 
+                                            alt="{{ $minister->name }}">
+                                    @endif
+                                    <h4 class="mt-3 mb-1 fw-semibold">{{ $minister->name }}</h4>
+                                    <p class="text-black m-0">{{ $minister->designation }}</p>
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    @endif    
                     <!-- <div class="col-lg-4 col-md-6 mb-3">
                         <div class="minister-card text-center">
                             <img src="https://master-socialjustice.digifootprint.gov.in/static/uploads/2025/10/dbb18b59215f4a581a2c2eb397e4bf93.png"
@@ -834,7 +838,7 @@
 </script> -->
 
 <script>
-    $(document).ready(function() {
+    (()=>{
         var $scrollMenu = $("#scrollMenu");
         var $leftBtn = $(".left-btn");
         var $rightBtn = $(".right-btn");
@@ -857,6 +861,6 @@
         });
         $scrollMenu.on("scroll", updateButtons);
         updateButtons(); // initialize
-    });
+    })();
 </script>
 @endpush

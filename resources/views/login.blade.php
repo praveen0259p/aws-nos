@@ -34,7 +34,8 @@
                                     placeholder="Enter your email"
                                     label="Login Id"
                                     icon="bi-envelope"
-                                    autocomplete="new-email" />
+                                    autocomplete="new-email"
+                                    :required="true" />
                             </div>
                             <div class="col-lg-12 mb-3">
                                 <x-text-input
@@ -43,7 +44,8 @@
                                     placeholder="Enter your password"
                                     label="Password"
                                     icon="bi-lock"
-                                    autocomplete="new-password" />
+                                    autocomplete="new-password" 
+                                    :required="true"/>
                             </div>
                         </div>
                         <div class="row align-items-center">
@@ -82,7 +84,7 @@
 {!! NoCaptcha::renderJs() !!}
 <script>
     
-    $(document).ready(function() {
+    (()=>{
         $("#login-form").validate({
             ignore: [],
             errorClass: 'text-danger',
@@ -95,9 +97,9 @@
                 password: {
                     required: true,
                 },
-                'g-recaptcha-response': {
-                    captchaRequired: true
-                }
+                // 'g-recaptcha-response': {
+                //     captchaRequired: true
+                // }
             },
             messages: {
                 email: {
@@ -134,6 +136,6 @@
         jQuery.validator.addMethod("captchaRequired", function(value, element) {
             return grecaptcha.getResponse().length > 0;
         }, "Please complete the captcha.");
-    });
+    })();
 </script>
 @endpush

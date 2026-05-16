@@ -1,26 +1,28 @@
 <label for="{{ $name }}" class="form-label fw-bold mb-2">
-    {{ $label }} <sup class="text-danger" aria-hidden="true">*</sup>
+    {{ $label }}  @if($required)<sup class="text-danger" aria-hidden="true">*</sup>@endif
 </label>
 <div class="input-group rounded-1">
-    <span class="input-group-text bg-white text-blue" id="category-icon">
-        <i class="bi {{ $icon }}"></i>
-    </span>
+    @if($icon)
+        <span class="input-group-text text-blue {{ $class ?? 'bg-white' }}" id="category-icon">
+            <i class="bi {{ $icon }}"></i>
+        </span>
+    @endif
     <select
-        class="form-select"
+        class="form-select {{$class}}"
         id="{{ $name }}"
         name="{{ $name }}"
         aria-label="{{ $name }}"
-        aria-describedby="{{ $name }}"
-    >
+        aria-describedby="{{ $name }}">
         {{-- Placeholder --}}
-        <option value="" {{ old($name) ? '' : 'selected' }}>
-            {{ $placeholder ?? $label }}
+        <option value="" {{ (old($name) !== null || $selected !== '') ? '' : 'selected' }}>
+            {{ $placeholder }}
         </option>
 
         {{-- Options --}}
-        @foreach($options as $value => $text)
-            <option value="{{ $value }}" {{ old($name) == $value ? 'selected' : '' }}>
-                {{ $text }}
+        @foreach($options as $val => $label)
+            <option value="{{ $val }}" 
+                {{ (string)old($name, $selected) === (string)$val ? 'selected' : '' }}>
+                {{ $label }}
             </option>
         @endforeach
     </select>
