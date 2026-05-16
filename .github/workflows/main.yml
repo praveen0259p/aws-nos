@@ -32,20 +32,26 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
+            set -e
+
             cd /var/www/html/aws-nos
 
-            git pull origin main
+            # Force sync server with GitHub
+            git fetch origin main
+            git reset --hard origin/main
 
+            # Install dependencies
             composer install --no-dev --prefer-dist --optimize-autoloader
 
-            php artisan migrate --force
-
+            # Clear and rebuild Laravel caches
             php artisan optimize:clear
             php artisan config:cache
-            php artisan route:cache
+            php artisan route:clear
             php artisan view:cache
 
+            # Fix permissions
             sudo chmod -R 775 storage bootstrap/cache
 
+            # Restart services
             sudo systemctl restart httpd
             sudo systemctl restart php-fpm
